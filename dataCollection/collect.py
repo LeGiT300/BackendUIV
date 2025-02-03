@@ -5,10 +5,10 @@ app = Flask(__name__)
 api = Api(app)
 
 class formData(Resource):
-    def get(self):
-        return {'message': 'Hello, world!'}
+    def get(self, name, age):
+        return {'name': name, 'age': age}
     
-api.add_resource(formData, '/helloworld')
+api.add_resource(formData, '/helloworld/<string:name>/<int:age>')
 
 
 
