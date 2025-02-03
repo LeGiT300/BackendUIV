@@ -1,6 +1,6 @@
-from requests import get, put
+from requests import get
 
-put('http://localhost:5000/todo1', data={'data': 'Remember the milk'}).json
-put('http://localhost:5000/todo2', data={'data': 'change the breaks'}).json
-data = get('http://localhost:5000/todo1').json
-print(data)
+base = 'http://localhost:5000/'
+
+response = get(base + 'helloworld')
+print(response)
