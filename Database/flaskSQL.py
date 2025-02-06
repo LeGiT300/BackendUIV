@@ -40,6 +40,7 @@ class Profile(db.Model):
 class Image(db.Model):
     __tablename__ = 'image'
     image_id = db.Column(db.Integer, primary_key=True)
+    image_url = db.Column(db.String, nullable=False)
     upload_date = db.Column(db.DateTime, default=datetime.now)
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
 

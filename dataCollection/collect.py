@@ -4,6 +4,8 @@ from Database.flaskSQL import (User, Profile, Image, Document)
 import json
 from flask_bcrypt import Bcrypt
 import secrets
+from werkzeug.utils import secure_filename
+import os
 
 from flask_jwt_extended import (JWTManager, create_access_token, jwt_required, get_jwt_identity)
 
@@ -19,7 +21,16 @@ app.config['JWT_SECRETE_KEY'] = secret_key
 
 db = sql(app)
 
+# Function to save file to storage
+def save_file_to_storage(file):
+    upload_folder = 'uploads/'
+    if not os.path.exists(upload_folder):
+        os.makedirs(upload_folder)
+    file_path = os.path.join(upload_folder, secure_filename(file.filename))
+    file.save(file_path)
+    return file_path
 
+#ADDING API ENDPOINTS
 #ADDING API ENDPOINTS
 
 
@@ -47,12 +58,26 @@ def register():
     #document upload
 
     uploaded = request.files.getlist('files')
-    for files in uploaded:
-        if files.filename == '':
+    for file in uploaded:
+        if file.filename == '':
             continue
 
-        filename = secure
+        filename = secure_filename(file.filename)
+        file_url = save_file_to_storage(file)
+        if filename.lower().endswith('jpg', 'png', 'jpeg'):
+            new_image = Image(image_url=file_url, user_id=new_user.user_id)
 
+        else:
+            new_doc = Document(
+                document_name=filename, 
+                document_type=filename.split('.')[-1],
+                document_url = file_url,
+                user_id = new_user.user_id
+            )
+
+        db.session.add(new_doc)
+    
+    db.session.commit()
     return json({'message': 'User Created Successfully!'}), 200
 
 
