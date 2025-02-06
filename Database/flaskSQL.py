@@ -5,6 +5,7 @@ from flask_bcrypt import Bcrypt
 from flask_jwt_extended import (JWTManager, create_access_token, jwt_required, get_jwt_identity)
 
 from datetime import datetime
+import json
 # from flask_wtf import FlaskForm
 # from wtforms import StringField, IntegerField, SubmitField
 # from wtforms.validators import DataRequired, Email
@@ -43,6 +44,7 @@ class Profile(db.Model):
     __tablename__ = 'profile'
     profile_ID = db.Column(db.Integer, primary_key=True)
     verification = db.Column(db.Boolean, nullable=False)
+    token = db.Column(db.String, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
 
 
@@ -75,20 +77,23 @@ def register():
     mail = data.get('email')
     tel = data.get('phone')
 
-        
-        user = User(username=username, email=mail, phone=tel)
-        db.session.add(user)
 
-        try:
-            db.session.commit()
-            return 'User added Successfully!!'
-        
-        except Exception as e:
-            db.session.rollback()
-            return f'Commit failed. Error {e}'
-        
-    else:
-        return 'Invalid form!'
+    if not username:
+        return json({'error': 'Missing Username'}), 400 
+    
+
+    if User.query.filter_by(username=username).first():
+        return json({'error': 'Username already exists!'}), 400
+
+    new_user = User(username=username, email=mail, phone=tel)
+    db.session.add(new_user)
+    db.session.commit()
+
+    return json({'message': 'User Created Successfully!'}), 200
+
+@app.route()
+    
+    
 
 
 if __name__ == '__main__':
