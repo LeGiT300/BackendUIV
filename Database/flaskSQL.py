@@ -5,9 +5,9 @@ from flask_bcrypt import Bcrypt
 from flask_jwt_extended import (JWTManager, create_access_token, jwt_required, get_jwt_identity)
 
 from datetime import datetime
-from flask_wtf import FlaskForm
-from wtforms import StringField, IntegerField, SubmitField
-from wtforms.validators import DataRequired, Email
+# from flask_wtf import FlaskForm
+# from wtforms import StringField, IntegerField, SubmitField
+# from wtforms.validators import DataRequired, Email
 
 
 app = Flask(__name__)
@@ -20,7 +20,7 @@ db = sql(app)
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
 
-#CR
+#CREATING THE DATABASE
 
 class User(db.Model):
     __tablename__ = 'user'
@@ -62,25 +62,18 @@ class Document(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
 
 
-class UserForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired()])
-    email = StringField('Email', validators=[DataRequired(), Email()])
-    phone = IntegerField('Phone', validators=[DataRequired()])
-    submit = SubmitField('Submit')
-
-
+#ADDING API ENDPOINTS
 @app.route('/')
 def index():
     return render_template('index.html')
 
 
-@app.route('/submit', methods=['POST'])
-def submit():
-    form = UserForm(request.form)
-    if form.validate():
-        username = request.form['username']
-        mail = request.form['email']
-        tel = request.form['phone']
+@app.route('/register', methods=['POST'])
+def register():
+    data = request.get_json()
+    username = data.get('username')
+    mail = data.get('email')
+    tel = data.get('phone')
 
         
         user = User(username=username, email=mail, phone=tel)
