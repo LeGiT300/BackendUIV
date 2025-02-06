@@ -6,7 +6,8 @@ from flask_bcrypt import Bcrypt
 import secrets
 from werkzeug.utils import secure_filename
 import os
-from time import timedelta
+
+from datetime import datetime, timedelta
 from flask_jwt_extended import (JWTManager, create_access_token, jwt_required, get_jwt_identity)
 
 
@@ -100,7 +101,7 @@ def login():
     user.profile.token = access_token
     user.profile.token_expiry = datetime.utcnow() + timedelta(seconds=60)
     db.session.commit()
-    
+
     return json({'access_token': access_token}), 201
     
     
