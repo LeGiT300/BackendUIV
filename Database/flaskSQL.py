@@ -27,6 +27,7 @@ class User(db.Model):
     username = db.Column(db.String(15), unique=True, nullable=False)
     email = db.Column(db.String(80), unique=True, nullable=False)
     phone = db.Column(db.Integer, unique=True, nullable=False)
+    password = db.Column(db.String, nullable=False)
     profile_ID = db.Column(db.Integer, db.ForeignKey('profile.profile_ID'))
 
 
@@ -36,7 +37,8 @@ class Profile(db.Model):
     __tablename__ = 'profile'
     profile_ID = db.Column(db.Integer, primary_key=True)
     verification = db.Column(db.Boolean, nullable=False)
-    token = db.Column(db.String, nullable=False)
+    token = db.Column(db.String(255), nullable=True)
+    token_expiry = db.Column(db.DateTime, nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
 
 
@@ -66,18 +68,28 @@ def register():
     username = data.get('username')
     mail = data.get('email')
     tel = data.get('phone')
+    password = data.get('password')
 
 
-    if not username:
+    if not all([username, mail, tel, password]):
         return json({'error': 'Missing Username'}), 400 
     
-
+    hashed_pwd = bcrypt.generate_password_hash(password).decode('utf-8')
     if User.query.filter_by(username=username).first():
         return json({'error': 'Username already exists!'}), 400
 
-    new_user = User(username=username, email=mail, phone=tel)
+    new_user = User(username=username, email=mail, phone=tel, password=hashed_pwd)
     db.session.add(new_user)
     db.session.commit()
+
+    #document upload
+
+    uploaded = request.files.getlist('files')
+    for files in uploaded:
+        if files.filename == '':
+            continue
+
+        filename = secure
 
     return json({'message': 'User Created Successfully!'}), 200
 
