@@ -107,13 +107,23 @@ def login():
     
 #ROUTE TO FETCH USER DETAILS FROM TOKEN
 
-@app.route('/profile', methods=['GET'])
+@app.route('/user', methods=['GET'])
 @jwt_required()
 def profile():
     user_id = get_jwt_identity()
     user = User.query.get(user_id)
 
-
+    if not user:
+        return ({'error': 'User not found!'}), 404
+    
+    profile = Profile.query.filter_by(user_id=user_id).first()
+    if not profile or profile.token != request.headers.get('Authorization').split()[1]:
+        return json({'error': 'The token is either invalid or expired'}), 401
+    
+    if profile.token_expiry < datetime.utcnow():
+        return json({'error': 'The token is expired'}), 401
+    
+    
     return json({
         'username': user.username,
         'email': user.email,
