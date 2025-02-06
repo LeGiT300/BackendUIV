@@ -1,0 +1,19 @@
+# Core Flask
+Flask==3.0.0
+Flask-SQLAlchemy==3.1.1
+
+# Authentication & Security
+Flask-JWT-Extended==4.5.3
+Flask-Bcrypt==1.0.1
+python-dotenv==1.0.0
+
+# Database
+SQLAlchemy==2.0.23
+psycopg2-binary==2.9.9  # For PostgreSQL (optional)
+
+# File Handling & Utilities
+Werkzeug==3.0.1
+Pillow==10.1.0  # For image processing (optional)
+
+# Testing
+pytest==7.4.3
