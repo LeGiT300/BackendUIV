@@ -51,7 +51,3 @@ class Document(db.Model):
     document_name = db.Column(db.String(15), unique=True, nullable=False)
     document_type = db.Column(db.String(15), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
-
-if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()

@@ -1,6 +1,13 @@
 from flask import Flask, request
-from flask_sqlalchemy import SQLAlchemy as sql
-from Database.flaskSQL import User, Profile, Image, Document
+
+import sys
+import os
+
+# Add the project root directory to Python's path
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(project_root)
+
+from Database.flaskSQL import User, Profile, Image, Document, db
 import json
 from flask_bcrypt import Bcrypt
 import secrets
@@ -20,7 +27,11 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///uiv.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRETE_KEY'] = secret_key
 
-db = sql(app)
+db.__init__(app)
+
+
+with app.app_context():
+    db.create_all()
 
 # Function to save file to storage
 def save_file_to_storage(file):
