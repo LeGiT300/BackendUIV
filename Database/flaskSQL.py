@@ -1,5 +1,9 @@
 from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy as sql
+from flask_bcrypt import Bcrypt
+
+from flask_jwt_extended import (JWTManager, create_access_token, jwt_required, get_jwt_identity)
+
 from datetime import datetime
 from flask_wtf import FlaskForm
 from wtforms import StringField, IntegerField, SubmitField
@@ -10,8 +14,13 @@ app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///uiv.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['JWT_SECRETE_KEY'] = ''
 
 db = sql(app)
+bcrypt = Bcrypt(app)
+jwt = JWTManager(app)
+
+#CR
 
 class User(db.Model):
     __tablename__ = 'user'
