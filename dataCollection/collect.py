@@ -6,7 +6,7 @@ from flask_bcrypt import Bcrypt
 import secrets
 from werkzeug.utils import secure_filename
 import os
-
+from time import timedelta
 from flask_jwt_extended import (JWTManager, create_access_token, jwt_required, get_jwt_identity)
 
 
@@ -86,31 +86,39 @@ def register():
 def login():
     data = request.get_json()
     username = data.get('username')
-    mail = data.get('email')
+    password = data.get('password')
 
     user = User.query.filter_by(username=username).first()
-    email = User.query.filter_by(email=mail).first()
+    h_password = bcrypt.check_password_hash(user.password, password)
 
-    if not user or email:
+    if not user or h_password:
         return json({'error': 'Invalid credentials'}), 401
-
     
-    access_token = create_access_token(identity=user.id)
+    
+    access_token = create_access_token(identity=user.user_id, expires_delta=timedelta(seconds=60))
+
+    user.profile.token = access_token
+    user.profile.token_expiry = datetime.utcnow() + timedelta(seconds=60)
+    db.session.commit()
+    
     return json({'access_token': access_token}), 201
     
     
 #ROUTE TO FETCH USER DETAILS FROM TOKEN
 
 @app.route('/profile', methods=['GET'])
+@jwt_required()
 def profile():
-    current_user = get_jwt_identity()
-    user = User.query.get(current_user)
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
 
 
     return json({
         'username': user.username,
         'email': user.email,
-        'phone': user.phone
+        'phone': user.phone,
+        'images': [img.image_url for img in user.images],
+        'documents': [doc.document_url for doc in user.documents]
     }), 200
 
 if __name__ == '__main__':
