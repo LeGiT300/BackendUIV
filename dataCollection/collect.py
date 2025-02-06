@@ -1,6 +1,6 @@
 from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy as sql
-from Database.flaskSQL import (User, Profile, Image, Document)
+from Database.flaskSQL import User, Profile, Image, Document
 import json
 from flask_bcrypt import Bcrypt
 import secrets
@@ -123,7 +123,7 @@ def profile():
     if profile.token_expiry < datetime.utcnow():
         return json({'error': 'The token is expired'}), 401
     
-    
+
     return json({
         'username': user.username,
         'email': user.email,
