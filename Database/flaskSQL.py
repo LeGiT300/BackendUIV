@@ -5,17 +5,15 @@ from flask_bcrypt import Bcrypt
 from flask_jwt_extended import (JWTManager, create_access_token, jwt_required, get_jwt_identity)
 
 from datetime import datetime
+import secrets
 import json
-# from flask_wtf import FlaskForm
-# from wtforms import StringField, IntegerField, SubmitField
-# from wtforms.validators import DataRequired, Email
 
-
+secret_key = secrets.token_urlsafe(32)
 app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///uiv.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['JWT_SECRETE_KEY'] = ''
+app.config['JWT_SECRETE_KEY'] = secret_key
 
 db = sql(app)
 bcrypt = Bcrypt(app)
@@ -31,12 +29,6 @@ class User(db.Model):
     phone = db.Column(db.Integer, unique=True, nullable=False)
     profile_ID = db.Column(db.Integer, db.ForeignKey('profile.profile_ID'))
 
-    def __repr__(self):
-        return f'<User {self.username}>'
-    
-
-    with app.app_context():
-        db.create_all()
 
 
 
@@ -124,3 +116,5 @@ def profile():
 
 if __name__ == '__main__':
     app.run(debug=True)
+    # with app.app_context():
+    #     db.create_all()
