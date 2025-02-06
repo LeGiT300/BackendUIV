@@ -65,11 +65,9 @@ class Document(db.Model):
 
 
 #ADDING API ENDPOINTS
-@app.route('/')
-def index():
-    return render_template('index.html')
 
 
+#ROUTE TO VALIDATE THE FORM AND REGISTER NEW USERS
 @app.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
@@ -91,10 +89,38 @@ def register():
 
     return json({'message': 'User Created Successfully!'}), 200
 
-@app.route()
-    
-    
 
+#ROUTE TO LOGIN AND GENERATE AN ACCESS TOKEN
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    username = data.get('username')
+    mail = data.get('email')
+
+    user = User.query.filter_by(username=username).first()
+    email = User.query.filter_by(email=mail).first()
+
+    if not user or email:
+        return json({'error': 'Invalid credentials'}), 401
+
+    
+    access_token = create_access_token(identity=user.id)
+    return json({'access_token': access_token}), 201
+    
+    
+#ROUTE TO FETCH USER DETAILS FROM TOKEN
+
+@app.route('/profile', methods=['GET'])
+def profile():
+    current_user = get_jwt_identity()
+    user = User.query.get(current_user)
+
+
+    return json({
+        'username': user.username,
+        'email': user.email,
+        'phone': user.phone
+    }), 200
 
 if __name__ == '__main__':
     app.run(debug=True)
