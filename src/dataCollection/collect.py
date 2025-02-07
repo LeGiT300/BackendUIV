@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 
 import sys
 import os
@@ -8,7 +8,6 @@ project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(project_root)
 
 from Database.flaskSQL import User, Profile, Image, Document, db
-import json
 from flask_bcrypt import Bcrypt
 import secrets
 from werkzeug.utils import secure_filename
@@ -57,11 +56,12 @@ def register():
 
 
     if not all([username, mail, tel, password]):
-        return json({'error': 'Missing Username'}), 400 
+        return jsonify({'error': 'Missing Username'}), 400 
     
     hashed_pwd = bcrypt.generate_password_hash(password).decode('utf-8')
+
     if User.query.filter_by(username=username).first():
-        return json({'error': 'Username already exists!'}), 400
+        return jsonify({'error': 'Username already exists!'}), 400
 
     new_user = User(username=username, email=mail, phone=tel, password=hashed_pwd)
     db.session.add(new_user)
@@ -76,12 +76,12 @@ def register():
 
         filename = secure_filename(file.filename)
         file_url = save_file_to_storage(file)
-        if filename.lower().endswith('jpg', 'png', 'jpeg'):
+        if filename.lower().endswith('.jpg', '.png', '.jpeg'):
             new_image = Image(image_url=file_url, user_id=new_user.user_id)
 
         else:
             new_doc = Document(
-                document_name=new_image, 
+                document_name=filename, 
                 document_type=filename.split('.')[-1],
                 document_url = file_url,
                 user_id = new_user.user_id
@@ -90,7 +90,8 @@ def register():
         db.session.add(new_doc)
     
     db.session.commit()
-    return json({'message': 'User Created Successfully!'}), 200
+    return jsonify({'message': 'User Created Successfully!'}), 200
+
 
 
 #ROUTE TO LOGIN AND GENERATE AN ACCESS TOKEN
@@ -104,7 +105,7 @@ def login():
     h_password = bcrypt.check_password_hash(user.password, password)
 
     if not user or h_password:
-        return json({'error': 'Invalid credentials'}), 401
+        return jsonify({'error': 'Invalid credentials'}), 401
     
     
     access_token = create_access_token(identity=user.user_id, expires_delta=timedelta(seconds=60))
@@ -113,7 +114,7 @@ def login():
     user.profile.token_expiry = datetime.utcnow() + timedelta(seconds=60)
     db.session.commit()
 
-    return json({'access_token': access_token}), 201
+    return jsonify({'access_token': access_token}), 201
     
     
 #ROUTE TO FETCH USER DETAILS FROM TOKEN
@@ -125,17 +126,17 @@ def profile():
     user = User.query.get(user_id)
 
     if not user:
-        return ({'error': 'User not found!'}), 404
+        return jsonify({'error': 'User not found!'}), 404
     
     profile = Profile.query.filter_by(user_id=user_id).first()
     if not profile or profile.token != request.headers.get('Authorization').split()[1]:
-        return json({'error': 'The token is either invalid or expired'}), 401
+        return jsonify({'error': 'The token is either invalid or expired'}), 401
     
     if profile.token_expiry < datetime.utcnow():
-        return json({'error': 'The token is expired'}), 401
+        return jsonify({'error': 'The token is expired'}), 401
     
 
-    return json({
+    return jsonify({
         'username': user.username,
         'email': user.email,
         'phone': user.phone,
