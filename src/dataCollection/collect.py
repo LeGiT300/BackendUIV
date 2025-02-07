@@ -45,11 +45,10 @@ def save_file_to_storage(file):
 #ROUTE TO VALIDATE THE FORM AND REGISTER NEW USERS
 @app.route('/register', methods=['POST'])
 def register():
-    data = request.form()
-    username = data.get('username')
-    mail = data.get('email')
-    tel = data.get('phone')
-    password = data.get('password')
+    username = request.form.get('username')
+    mail = request.form.get('email')
+    tel = request.form.get('phone')
+    password = request.form.get('password')
 
 
     if not all([username, mail, tel, password]):
@@ -87,7 +86,7 @@ def register():
                 user_id = new_user.user_id
             )
 
-        db.session.add(new_doc)
+            db.session.add(new_doc)
     
     db.session.commit()
     return jsonify({'message': 'User Created Successfully!'}), 201
@@ -102,9 +101,7 @@ def login():
     password = data.get('password')
 
     user = User.query.filter_by(username=username).first()
-    h_password = bcrypt.check_password_hash(user.password, password)
-
-    if not user or h_password:
+    if not user or not bcrypt.check_password_hash(user.password, password):
         return jsonify({'error': 'Invalid credentials'}), 401
     
     

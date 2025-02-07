@@ -47,6 +47,7 @@ class Image(db.Model):
 
 class Document(db.Model):
     __tablename__ = 'document'
+    document_url = db.Column(db.String, nullable=False)
     document_id = db.Column(db.Integer, primary_key=True)
     document_name = db.Column(db.String(15), unique=True, nullable=False)
     document_type = db.Column(db.String(15), nullable=False)
