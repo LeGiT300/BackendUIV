@@ -1,20 +1,17 @@
 from flask import Flask, request, jsonify
-
 import sys
 import os
 
-# Add the project root directory to Python's path
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.append(project_root)
-
-from Database.flaskSQL import User, Profile, Image, Document, db
 from flask_bcrypt import Bcrypt
 import secrets
 from werkzeug.utils import secure_filename
 import os
-
 from datetime import datetime, timedelta
 from flask_jwt_extended import (JWTManager, create_access_token, jwt_required, get_jwt_identity)
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(project_root)
+
+from Database.flaskSQL import User, Profile, Image, Document, db
 
 
 app = Flask(__name__)
@@ -24,9 +21,9 @@ secret_key = secrets.token_urlsafe(32)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///uiv.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['JWT_SECRETE_KEY'] = secret_key
+app.config['JWT_SECRET_KEY'] = secret_key
 
-db.__init__(app)
+db.init_app(app)
 
 
 with app.app_context():
@@ -41,14 +38,14 @@ def save_file_to_storage(file):
     file.save(file_path)
     return file_path
 
-#ADDING API ENDPOINTS
+
 #ADDING API ENDPOINTS
 
 
 #ROUTE TO VALIDATE THE FORM AND REGISTER NEW USERS
 @app.route('/register', methods=['POST'])
 def register():
-    data = request.get_json()
+    data = request.form()
     username = data.get('username')
     mail = data.get('email')
     tel = data.get('phone')
@@ -56,16 +53,19 @@ def register():
 
 
     if not all([username, mail, tel, password]):
-        return jsonify({'error': 'Missing Username'}), 400 
+        return jsonify({'error': 'Missing Fields'}), 400 
     
-    hashed_pwd = bcrypt.generate_password_hash(password).decode('utf-8')
-
+    
     if User.query.filter_by(username=username).first():
         return jsonify({'error': 'Username already exists!'}), 400
 
+    hashed_pwd = bcrypt.generate_password_hash(password).decode('utf-8')
     new_user = User(username=username, email=mail, phone=tel, password=hashed_pwd)
     db.session.add(new_user)
-    db.session.commit()
+
+    new_profile = Profile(user_id=new_user.user_id)
+    db.session.add(new_profile)
+    
 
     #document upload
 
@@ -76,9 +76,9 @@ def register():
 
         filename = secure_filename(file.filename)
         file_url = save_file_to_storage(file)
-        if filename.lower().endswith('.jpg', '.png', '.jpeg'):
+        if filename.lower().endswith(('.jpg', '.png', '.jpeg')):
             new_image = Image(image_url=file_url, user_id=new_user.user_id)
-
+            db.session.add(new_image)
         else:
             new_doc = Document(
                 document_name=filename, 
@@ -90,7 +90,7 @@ def register():
         db.session.add(new_doc)
     
     db.session.commit()
-    return jsonify({'message': 'User Created Successfully!'}), 200
+    return jsonify({'message': 'User Created Successfully!'}), 201
 
 
 
