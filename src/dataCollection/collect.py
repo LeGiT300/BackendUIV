@@ -81,7 +81,7 @@ def register():
 
         else:
             new_doc = Document(
-                document_name=filename, 
+                document_name=new_image, 
                 document_type=filename.split('.')[-1],
                 document_url = file_url,
                 user_id = new_user.user_id
