@@ -97,9 +97,8 @@ def register():
 #ROUTE TO LOGIN AND GENERATE AN ACCESS TOKEN
 @app.route('/login', methods=['POST'])
 def login():
-    data = request.get_json()
-    username = data.get('username')
-    password = data.get('password')
+    username = request.form.get('username')
+    password = request.form.get('password')
 
     user = User.query.filter_by(username=username).first()
     if not user or not bcrypt.check_password_hash(user.password, password):
@@ -108,11 +107,11 @@ def login():
     
     access_token = create_access_token(identity=user.user_id, expires_delta=timedelta(seconds=60))
 
-    user.profile.token = access_token
-    user.profile.token_expiry = datetime.utcnow() + timedelta(seconds=60)
+    Profile.token = access_token
+    Profile.token_expiry = datetime.utcnow() + timedelta(seconds=60)
     db.session.commit()
 
-    return jsonify({'access_token': access_token}), 201
+    return jsonify({'access_token': access_token}), 200
     
     
 #ROUTE TO FETCH USER DETAILS FROM TOKEN
