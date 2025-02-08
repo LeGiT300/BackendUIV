@@ -62,8 +62,9 @@ def register():
     new_user = User(username=username, email=mail, phone=tel, password=hashed_pwd)
     db.session.add(new_user)
 
-    new_profile = Profile(user_id=new_user.user_id)
+    new_profile = Profile(user_id=new_user.user_id, verification=False)
     db.session.add(new_profile)
+    db.session.flush()
     
 
     #document upload

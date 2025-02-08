@@ -30,7 +30,7 @@ class User(db.Model):
 class Profile(db.Model):
     __tablename__ = 'profile'
     profile_ID = db.Column(db.Integer, primary_key=True)
-    verification = db.Column(db.Boolean, nullable=False)
+    verification = db.Column(db.Boolean, default=False nullable=False)
     token = db.Column(db.String(255), nullable=True)
     token_expiry = db.Column(db.DateTime, nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
