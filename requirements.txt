@@ -17,3 +17,9 @@ Pillow==10.1.0  # For image processing (optional)
 
 # Testing
 pytest==7.4.3
+
+
+#Data Extraction
+pytesseract 
+opencv-python 
+Pillow
