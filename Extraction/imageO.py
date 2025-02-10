@@ -3,7 +3,15 @@ import pytesseract
 import re
 from PIL import Image
 
-img = cv.imread('1Hwp3YIK.jpg')
+pytesseract.pytesseract.tesseract_cmd = r'C:/Program Files/Tesseract-OCR/tesseract.exe'
+
+img = cv.imread('D:/Smoke_IT/BackendUIV/Extraction/1Hwp3YIK.jpg')
+
+if img is None:
+    print('Path error!')
+    exit()
+
+
 grey = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 thresh = cv.threshold(grey, 0, 255, cv.THRESH_BINARY)[1]
 
