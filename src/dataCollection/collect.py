@@ -5,11 +5,10 @@ import os
 from flask_bcrypt import Bcrypt
 import secrets
 from werkzeug.utils import secure_filename
-import os
 from datetime import datetime, timedelta
 from flask_jwt_extended import (JWTManager, create_access_token, jwt_required, get_jwt_identity)
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.append(project_root)
+# project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+# sys.path.append(project_root)
 
 from Database.flaskSQL import User, Profile, Image, Document, db
 
