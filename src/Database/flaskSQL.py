@@ -23,6 +23,13 @@ class User(db.Model):
     password = db.Column(db.String, nullable=False)
     profile_ID = db.Column(db.Integer, db.ForeignKey('profile.profile_ID'))
 
+    profile = db.relationship(
+        'Profile',
+        backref='user',
+        uselist=False,  # One-to-one relationship
+        foreign_keys='Profile.user_id'  # Resolve ambiguity
+    )
+
 
 
 class Profile(db.Model):
@@ -31,7 +38,12 @@ class Profile(db.Model):
     verification = db.Column(db.Boolean, default=False, nullable=False)
     token = db.Column(db.String(255), nullable=True)
     token_expiry = db.Column(db.DateTime, nullable=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey('user.user_id'),
+        nullable=False,
+        unique=True
+    )
 
 
 

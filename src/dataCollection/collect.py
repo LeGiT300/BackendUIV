@@ -62,10 +62,10 @@ def register():
     hashed_pwd = bcrypt.generate_password_hash(password).decode('utf-8')
     new_user = User(username=username, email=mail, phone=tel, password=hashed_pwd)
     db.session.add(new_user)
+    db.session.flush()
 
     new_profile = Profile(user_id=new_user.user_id, verification=False)
     db.session.add(new_profile)
-    db.session.flush()
     
 
     #document upload
@@ -108,8 +108,8 @@ def login():
     
     access_token = create_access_token(identity=user.user_id, expires_delta=timedelta(seconds=60))
 
-    Profile.token = access_token
-    Profile.token_expiry = datetime.utcnow() + timedelta(seconds=60)
+    user.profile.token = access_token
+    user.profile.token_expiry = datetime.utcnow() + timedelta(seconds=60)
     db.session.commit()
 
     return jsonify({'access_token': access_token}), 200

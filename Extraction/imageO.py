@@ -1,9 +1,9 @@
 import cv2 as cv
-import pytesseract
+from pytesseract import pytesseract
 import re
 from PIL import Image
 
-pytesseract.pytesseract.tesseract_cmd = r'C:/Program Files/Tesseract-OCR/tesseract.exe'
+pytesseract.tesseract_cmd = r'C:/Program Files/Tesseract-OCR/tesseract.exe'
 
 img = cv.imread('D:/Smoke_IT/BackendUIV/Extraction/1Hwp3YIK.jpg')
 
