@@ -3,8 +3,6 @@ from flask_sqlalchemy import SQLAlchemy as sql
 
 
 from datetime import datetime
-import secrets
-import json
 
 app = Flask(__name__)
 
