@@ -17,11 +17,11 @@ from Database.flaskSQL import (User, Profile, Image, Document, db)
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
-secret_key = secrets.token_urlsafe(32)
+# secret_key = secrets.token_urlsafe(32)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///uiv.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['JWT_SECRET_KEY'] = secret_key
+app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'your-static-secret-key-here')
 
 
 db.init_app(app)
@@ -126,12 +126,12 @@ def profile():
     if not user:
         return jsonify({'error': 'User not found!'}), 404
     
-    profile = Profile.query.filter_by(user_id=user_id).first()
-    if not profile or profile.token != request.headers.get('Authorization').split()[1]:
-        return jsonify({'error': 'The token is either invalid or expired'}), 401
+    # profile = Profile.query.filter_by(user_id=user_id).first()
+    # if not profile or profile.token != request.headers.get('Authorization').split()[1]:
+    #     return jsonify({'error': 'The token is either invalid or expired'}), 401
     
-    if profile.token_expiry < datetime.utcnow():
-        return jsonify({'error': 'The token is expired'}), 401
+    # if profile.token_expiry < datetime.utcnow():
+    #     return jsonify({'error': 'The token is expired'}), 401
     
 
     return jsonify({
