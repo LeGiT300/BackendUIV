@@ -5,7 +5,7 @@ from PIL import Image
 
 pytesseract.tesseract_cmd = r'C:/Program Files/Tesseract-OCR/tesseract.exe'
 
-img = cv.imread('D:/Smoke_IT/BackendUIV/Extraction/1Hwp3YIK.jpg')
+img = cv.imread('D:/Smoke_IT/BackendUIV/Extraction/employee.jpg')
 
 if img is None:
     print('Path error!')

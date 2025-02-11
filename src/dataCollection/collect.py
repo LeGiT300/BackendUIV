@@ -21,7 +21,7 @@ jwt = JWTManager(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///uiv.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'your-static-secret-key-here')
+app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'pBfUH5IbZ17E92_U7KkzLR3q6Yf1cNJgExRbqv6xOf8')
 
 
 db.init_app(app)
@@ -106,7 +106,7 @@ def login():
         return jsonify({'error': 'Invalid credentials'}), 401
     
     
-    access_token = create_access_token(identity=user.user_id, expires_delta=timedelta(seconds=60))
+    access_token = create_access_token(identity=str(user.user_id), expires_delta=timedelta(seconds=60))
 
     user.profile.token = access_token
     user.profile.token_expiry = datetime.utcnow() + timedelta(seconds=60)
@@ -126,12 +126,14 @@ def profile():
     if not user:
         return jsonify({'error': 'User not found!'}), 404
     
-    # profile = Profile.query.filter_by(user_id=user_id).first()
-    # if not profile or profile.token != request.headers.get('Authorization').split()[1]:
-    #     return jsonify({'error': 'The token is either invalid or expired'}), 401
     
-    # if profile.token_expiry < datetime.utcnow():
-    #     return jsonify({'error': 'The token is expired'}), 401
+    profile = Profile.query.filter_by(user_id=user_id).first()
+    if not profile or profile.token != request.headers.get('Authorization').split()[1]:
+        return jsonify({'error': 'The token is either invalid or expired'}), 401
+    
+    
+    if profile.token_expiry < datetime.utcnow():
+        return jsonify({'error': 'The token is expired'}), 401
     
 
     return jsonify({
