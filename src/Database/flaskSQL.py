@@ -15,25 +15,19 @@ db = sql(app)
 #CREATING THE DATABASE
 
 class User(db.Model):
-    __tablename__ = 'user'
+    _tablename_ = 'user'
     user_id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(15), unique=True, nullable=False)
     email = db.Column(db.String(80), unique=True, nullable=False)
     phone = db.Column(db.String, unique=True, nullable=False)
     password = db.Column(db.String, nullable=False)
-    profile_ID = db.Column(db.Integer, db.ForeignKey('profile.profile_ID'))
 
-    profile = db.relationship(
-        'Profile',
-        backref='user',
-        uselist=False,  # One-to-one relationship
-        foreign_keys='Profile.user_id'  # Resolve ambiguity
-    )
-
-
+    profile = db.relationship('Profile', backref='user', uselist=False)
+    images = db.relationship('Image', backref='user', lazy=True)
+    documents = db.relationship('Document', backref='user', lazy=True)
 
 class Profile(db.Model):
-    __tablename__ = 'profile'
+    _tablename_ = 'profile'
     profile_ID = db.Column(db.Integer, primary_key=True)
     verification = db.Column(db.Boolean, default=False, nullable=False)
     token = db.Column(db.String(255), nullable=True)
@@ -45,8 +39,8 @@ class Profile(db.Model):
         unique=True
     )
 
-    images = db.relationship('Image', backref='user', lazy=True)
-    documents = db.relationship('Image', backref='user', lazy=True)
+    # images = db.relationship('Image', backref='user', lazy=True)
+    # documents = db.relationship('Image', backref='user', lazy=True)
 
 
 
