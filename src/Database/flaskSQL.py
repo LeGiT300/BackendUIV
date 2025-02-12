@@ -45,6 +45,9 @@ class Profile(db.Model):
         unique=True
     )
 
+    images = db.relationship('Image', backref='user', lazy=True)
+    documents = db.relationship('Image', backref='user', lazy=True)
+
 
 
 class Image(db.Model):
