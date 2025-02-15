@@ -3,7 +3,6 @@ import sys
 import os
 
 from flask_bcrypt import Bcrypt
-import secrets
 from werkzeug.utils import secure_filename
 from datetime import datetime, timedelta
 from flask_jwt_extended import (JWTManager, create_access_token, jwt_required, get_jwt_identity)
