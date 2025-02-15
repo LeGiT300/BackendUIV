@@ -26,6 +26,7 @@ class User(db.Model):
     images = db.relationship('Image', backref='user', lazy=True)
     documents = db.relationship('Document', backref='user', lazy=True)
 
+
 class Profile(db.Model):
     _tablename_ = 'profile'
     profile_ID = db.Column(db.Integer, primary_key=True)
