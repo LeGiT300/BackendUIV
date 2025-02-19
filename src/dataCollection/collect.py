@@ -11,7 +11,7 @@ project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(project_root)
 
 from Database.flaskSQL import (User, Profile, Image, Document, db)
-from Extraction.imageCompare import Image_Compare
+from Extraction.imageCompare import Image_compare
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -100,18 +100,37 @@ def login():
     username = request.form.get('username')
     password = request.form.get('password')
 
+    login_image = request.files.get('login_image')
+    if not login_image:
+        return jsonify({'error': 'Login image is required for face verification'}), 400
+    
+    
+    login_image_path = save_file_to_storage(login_image)    
+
     user = User.query.filter_by(username=username).first()
     if not user or not bcrypt.check_password_hash(user.password, password):
         return jsonify({'error': 'Invalid credentials'}), 401
     
+
+    if not user.images or len(user.images) == 0:
+        return jsonify({'error': 'No registered image found for verification'}), 400
+    
+    registered_image_path = user.images[0].image_url
+    comparator = Image_compare()
+    match = comparator.compare(login_image_path, registered_image_path)
+    
+    if not match:
+        return jsonify({'error': 'Face does not match the registered image'}), 401
+    
     
     access_token = create_access_token(identity=str(user.user_id), expires_delta=timedelta(seconds=60))
-
     user.profile.token = access_token
     user.profile.token_expiry = datetime.utcnow() + timedelta(seconds=60)
     db.session.commit()
 
     return jsonify({'access_token': access_token}), 200
+
+    
     
     
 #ROUTE TO FETCH USER DETAILS FROM TOKEN
