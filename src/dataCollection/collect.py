@@ -18,6 +18,7 @@ bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
 # secret_key = secrets.token_urlsafe(32)
 
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///uiv.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'pBfUH5IbZ17E92_U7KkzLR3q6Yf1cNJgExRbqv6xOf8')
@@ -28,6 +29,7 @@ db.init_app(app)
 
 with app.app_context():
     db.create_all()
+
 
 # Function to save file to storage
 def save_file_to_storage(file):
@@ -40,8 +42,6 @@ def save_file_to_storage(file):
 
 
 #ADDING API ENDPOINTS
-
-
 #ROUTE TO VALIDATE THE FORM AND REGISTER NEW USERS
 @app.route('/register', methods=['POST'])
 def register():
@@ -94,7 +94,9 @@ def register():
 
 
 
-#ROUTE TO LOGIN AND GENERATE AN ACCESS TOKEN
+
+
+#ROUTE TO LOGIN AND GENERATE AN ACCESS TOKEN WHEN USER FACE IS VERIFIED
 @app.route('/login', methods=['POST'])
 def login():
     username = request.form.get('username')
@@ -120,7 +122,7 @@ def login():
     match = comparator.compare(login_image_path, registered_image_path)
     
     if not match:
-        return jsonify({'error': 'Face does not match the registered image'}), 401
+        return jsonify({'error': 'Face does not match the registered ID image'}), 401
     
     
     access_token = create_access_token(identity=str(user.user_id), expires_delta=timedelta(seconds=60))
