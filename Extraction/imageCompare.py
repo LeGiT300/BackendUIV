@@ -1,30 +1,42 @@
 import cv2 
 import face_recognition
 
-# Load the ID/passport image and the actual image (e.g., a selfie)
-id_images = cv2.imread("D:/Smoke_IT/BackendUIV/Extraction/1Hwp3YIK.jpg")
-live_images = cv2.imread("D:/Smoke_IT/BackendUIV/Extraction/1Hwp3YIK.jpg")
+# Load images with validation
+id_path = "Extraction/meeee.jpg"
+live_path = "Extraction/Leku.jpg"  # Use a different image
 
-id_image = cv2.cvtColor(id_images, cv2.COLOR_BGR2RGB)
-live_image = cv2.cvtColor(live_images, cv2.COLOR_BGR2RGB)
+id_image = cv2.imread(id_path)
+if id_image is None:
+    print(f"Error loading ID image from {id_path}")
+    exit()
 
-# Detect faces in both images
-id_face_locations = face_recognition.face_locations(id_image)
-live_face_locations = face_recognition.face_locations(live_image)
+live_image = cv2.imread(live_path)
+if live_image is None:
+    print(f"Error loading live image from {live_path}")
+    exit()
 
-if id_face_locations and live_face_locations:
-    # For simplicity, take the first face found in each image
-    id_encoding = face_recognition.face_encodings(id_image, known_face_locations=id_face_locations)[0]
-    live_encoding = face_recognition.face_encodings(live_image, known_face_locations=live_face_locations)[0]
+# Convert to RGB
+id_rgb = cv2.cvtColor(id_image, cv2.COLOR_BGR2RGB)
+live_rgb = cv2.cvtColor(live_image, cv2.COLOR_BGR2RGB)
 
-    # Compare the faces
-    results = face_recognition.compare_faces([id_encoding], live_encoding)
+# Detect faces
+id_face_locations = face_recognition.face_locations(id_rgb)
+live_face_locations = face_recognition.face_locations(live_rgb)
+
+if not id_face_locations:
+    print("No face found in ID image.")
+elif not live_face_locations:
+    print("No face found in live image.")
+else:
+    # Encode first face in each image
+    id_encoding = face_recognition.face_encodings(id_rgb, [id_face_locations[0]])[0]
+    live_encoding = face_recognition.face_encodings(live_rgb, [live_face_locations[0]])[0]
+
+    # Compare with adjusted tolerance
+    match = face_recognition.compare_faces([id_encoding], live_encoding, tolerance=0.5)[0]
     distance = face_recognition.face_distance([id_encoding], live_encoding)[0]
 
-    print("Match:", results[0], "Distance:", distance)
-else:
-    print("Face not detected in one of the images.")
-
+    print(f"Match: {match}, Distance: {distance:.4f}")
 
 # cap = cv.VideoCapture(0)
 
