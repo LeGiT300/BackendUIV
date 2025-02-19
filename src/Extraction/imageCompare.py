@@ -42,26 +42,3 @@ class Image_compare:
             print(f"Match: {match}, Distance: {distance:.4f}")
 
         return match
-
-# cap = cv.VideoCapture(0)
-
-# if not cap.isOpened:
-#     print('Something is wrong with the camera')
-#     exit()
-
-
-# while True:
-#     ret, frame = cap.read()
-
-#     if not ret:
-#         print('Could not get frames')
-#         break
-
-#     cv.imshow('ME', frame)
-
-#     if cv.waitKey(1) & 0xFF == ord('q'):
-#         break
-
-
-# cap.release()
-# cv.destroyAllWindows()
