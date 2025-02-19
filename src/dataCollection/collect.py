@@ -11,7 +11,7 @@ project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(project_root)
 
 from Database.flaskSQL import (User, Profile, Image, Document, db)
-
+from Extraction.imageCompare import Image_Compare
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
