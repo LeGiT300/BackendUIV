@@ -10,8 +10,7 @@
 
 import cv2
 import pytesseract
-import numpy as np
-import keras
+
 
 # Set Tesseract path if needed (Windows)
 pytesseract.pytesseract.tesseract_cmd = r'C:/Program Files/Tesseract-OCR/tesseract.exe'
