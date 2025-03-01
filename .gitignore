@@ -2,3 +2,4 @@
 /uploads
 /src/Extraction/*.jpg
 # /Extraction/meeee.jpg
+*.jpg

@@ -1,28 +1,35 @@
-import cv2 as cv
-from pytesseract import pytesseract
-import re
-from PIL import Image
-
-pytesseract.tesseract_cmd = r'C:/Program Files/Tesseract-OCR/tesseract.exe'
-
-img = cv.imread('D:/Smoke_IT/BackendUIV/Extraction/employee.jpg')
-
-if img is None:
-    print('Path error!')
-    exit()
+# import easyocr
 
 
-grey = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-thresh = cv.threshold(grey, 0, 255, cv.THRESH_BINARY)[1]
+# reader = easyocr.Reader(['en'])
 
-text = pytesseract.image_to_string(thresh)
-print('Raw Text from image:\n', text)
+# reader = easyocr.Reader(['en'],gpu=False)
+# result = reader.readtext('D:/Smoke_IT/BackendUIV/WhatsApp Image 2025-02-19 at 13.47.47_099afc4b.jpg', detail=0)
+# print(result)
 
-name = re.findall(r"Name:\s*(.+?)\n", text, re.IGNORECASE)
-id_number = re.findall(r"ID:\s*(\d+[A-Z-]*)", text, re.IGNORECASE)
-dob = re.findall(r"\d{2}/\d{2}/\d{4}", text) 
 
-print("\nExtracted Data:")
-print(f"Name: {name[0] if name else 'Not found'}")
-print(f"ID Number: {id_number[0] if id_number else 'Not found'}")
-print(f"DOB: {dob[0] if dob else 'Not found'}")
+import cv2
+import pytesseract
+import numpy as np
+import keras
+
+# Set Tesseract path if needed (Windows)
+pytesseract.pytesseract.tesseract_cmd = r'C:/Program Files/Tesseract-OCR/tesseract.exe'
+
+def preprocess_image(image_path):
+    """ Load and preprocess image for OCR """
+    image = cv2.imread(image_path)
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)  # Convert to grayscale
+    _, binary = cv2.threshold(gray, 128, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)  # Binarization
+    return binary
+
+def extract_text(image_path):
+    """ Extract text using Tesseract OCR """
+    processed_image = preprocess_image(image_path)
+    text = pytesseract.image_to_string(processed_image)  # OCR
+    return text
+
+# Test OCR on an image
+image_path = "D:/Smoke_IT/BackendUIV/ID_card.jpg"
+text_output = extract_text(image_path)
+print("Extracted Text:\n", text_output)
