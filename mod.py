@@ -20,7 +20,6 @@ from Extraction.imageO import ImageExtractor
 
 from dotenv import load_dotenv
 
-
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -34,8 +33,8 @@ extractor = ImageExtractor()
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
-# secret_key = secrets.token_urlsafe(32)
 
+# Initialize rate limiter
 limiter = Limiter(
     get_remote_address,
     app=app,
@@ -43,14 +42,16 @@ limiter = Limiter(
     storage_uri="memory://"
 )
 
-KEY = os.getenv('JWT_TOKEN')
+# Load environment variables
 load_dotenv()
+KEY = os.getenv('JWT_TOKEN')
 
+# Validate required environment variables
 if not os.getenv('JWT_SECRET_KEY'):
     logger.critical("JWT_SECRET_KEY environment variable not set")
     raise EnvironmentError("JWT_SECRET_KEY must be set in environment")
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///uiv.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URI', 'sqlite:///uiv.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 
@@ -58,9 +59,7 @@ app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 ALLOWED_EXTENSIONS = {'jpg', 'jpeg', 'png', 'pdf'}
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
 
-
 db.init_app(app)
-
 
 with app.app_context():
     db.create_all()
@@ -95,7 +94,7 @@ def allowed_file(file):
     
     return mime_type in allowed_mime_types
 
-
+# Function to save file to storage with enhanced security
 def save_file_to_storage(file):
     if not file or not allowed_file(file):
         logger.warning(f"Invalid file upload attempt: {file.filename if file else 'None'}")
@@ -120,11 +119,10 @@ def save_file_to_storage(file):
     return file_path
 
 
-#ADDING API ENDPOINTS
+# ADDING API ENDPOINTS
 ## 1. POST /get-documents
-
 @app.route('/get-documents', methods=['POST'])
-@limiter.limit("10/hour") 
+@limiter.limit("10/hour")  # Limit to prevent abuse
 def get_document():
     try:
         # Validate input fields
@@ -202,10 +200,9 @@ def get_document():
     except Exception as e:
         logger.error(f"Unhandled exception in get_document: {str(e)}")
         return jsonify({'error': 'An unexpected error occurred'}), 500
-    
 
 
-#ROUTE TO LOGIN AND GENERATE AN ACCESS TOKEN WHEN USER FACE IS VERIFIED
+# ROUTE TO LOGIN AND GENERATE AN ACCESS TOKEN WHEN USER FACE IS VERIFIED
 @app.route('/generate_token', methods=['POST'])
 @limiter.limit("5/minute; 20/hour")  # More strict rate limiting for authentication
 def generate_token():
@@ -266,14 +263,12 @@ def generate_token():
     except Exception as e:
         logger.error(f"Unhandled exception in generate_token: {str(e)}")
         return jsonify({'error': 'An unexpected error occurred'}), 500
-
-     
     
-#ROUTE TO FETCH USER DETAILS FROM TOKEN
-
+    
+# ROUTE TO FETCH USER DETAILS FROM TOKEN
 @app.route('/verify-user', methods=['GET'])
-@limiter.limit("30/minute")  # Rate limit to prevent abuse
 @jwt_required()
+@limiter.limit("30/minute")  # Rate limit to prevent abuse
 def verify_user():
     try:
         user_id = get_jwt_identity()
@@ -304,7 +299,18 @@ def verify_user():
         logger.error(f"Unhandled exception in verify_user: {str(e)}")
         return jsonify({'error': 'An unexpected error occurred'}), 500
 
+
+# Error handlers
+@app.errorhandler(404)
+def not_found(error):
+    return jsonify({'error': 'Resource not found'}), 404
+
+@app.errorhandler(500)
+def server_error(error):
+    logger.error(f"Server error: {str(error)}")
+    return jsonify({'error': 'Internal server error'}), 500
+
 if __name__ == '__main__':
-    app.run(debug=True)
-    # with app.app_context():
-    #     db.create_all()
+    # Do not use debug=True in production
+    debug_mode = os.getenv('FLASK_ENV') == 'development'
+    app.run(debug=debug_mode, host='0.0.0.0', port=int(os.getenv('PORT', 5000)))
