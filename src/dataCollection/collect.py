@@ -303,8 +303,19 @@ def verify_user():
     except Exception as e:
         logger.error(f"Unhandled exception in verify_user: {str(e)}")
         return jsonify({'error': 'An unexpected error occurred'}), 500
+    
+
+
+@app.errorhandler(404)
+def not_found(error):
+    return jsonify({'error': 'Resource not found'}), 404
+
+@app.errorhandler(500)
+def server_error(error):
+    logger.error(f"Server error: {str(error)}")
+    return jsonify({'error': 'Internal server error'}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
-    # with app.app_context():
-    #     db.create_all()
+    # Do not use debug=True in production
+    debug_mode = os.getenv('FLASK_ENV') == 'development'
+    app.run(debug=debug_mode, host='0.0.0.0', port=int(os.getenv('PORT', 5000)))
