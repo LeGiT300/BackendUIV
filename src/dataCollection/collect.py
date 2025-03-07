@@ -12,16 +12,23 @@ sys.path.append(project_root)
 
 from Database.flaskSQL import (User, Profile, Image, Document, db)
 from Extraction.imageCompare import Image_compare
+from Extraction.imageO import ImageExtractor
+
+from dotenv import load_dotenv
+
+
+extractor = ImageExtractor()
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
 # secret_key = secrets.token_urlsafe(32)
 
-
+load_dotenv()
+KEY = os.getenv('JWT_TOKEN')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///uiv.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'pBfUH5IbZ17E92_U7KkzLR3q6Yf1cNJgExRbqv6xOf8')
+app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', KEY)
 
 
 db.init_app(app)
@@ -41,20 +48,28 @@ def save_file_to_storage(file):
     return file_path
 
 
+
 #ADDING API ENDPOINTS
 #ROUTE TO VALIDATE THE FORM AND REGISTER NEW USERS
-@app.route('/register', methods=['POST'])
-def register():
-    username = request.form.get('username')
-    mail = request.form.get('email')
-    tel = request.form.get('phone')
-    password = request.form.get('password')
+
+@app.route('/get-documents', methods=['POST'])
+def get_document():
+    documentType = request.form.get('documentType')
+    selfie = request.files.get('selfie')
+    documentBack = request.files.get('documentBack')
+    documentFront = request.files.get('documentFront')
 
 
-    if not all([username, mail, tel, password]):
-        return jsonify({'error': 'Missing Fields'}), 400 
+    if not all([documentType, selfie, documentBack, documentFront]):
+        return jsonify({'error': 'Missing required fields or files'}), 400
     
-    
+    selfie_path = save_file_to_storage(selfie)
+    doc_back_path = save_file_to_storage(documentBack)
+    doc_front_path = save_file_to_storage(documentFront)
+
+    extracted_data = extract_document_data(documentType, selfie_path, doc_back_path, doc_front_path)
+
+
     if User.query.filter_by(username=username).first():
         return jsonify({'error': 'Username already exists!'}), 400
 
