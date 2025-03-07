@@ -50,83 +50,83 @@ def save_file_to_storage(file):
 
 
 #ADDING API ENDPOINTS
-#ROUTE TO VALIDATE THE FORM AND REGISTER NEW USERS
+## 1. POST /get-documents
 
 @app.route('/get-documents', methods=['POST'])
 def get_document():
     documentType = request.form.get('documentType')
-    selfie = request.files.get('selfie')
     documentBack = request.files.get('documentBack')
     documentFront = request.files.get('documentFront')
 
 
-    if not all([documentType, selfie, documentBack, documentFront]):
+    if not all([documentType, documentBack, documentFront]):
         return jsonify({'error': 'Missing required fields or files'}), 400
     
-    selfie_path = save_file_to_storage(selfie)
-    doc_back_path = save_file_to_storage(documentBack)
+    save_file_to_storage(documentBack)
     doc_front_path = save_file_to_storage(documentFront)
 
-    extracted_data = extract_document_data(documentType, selfie_path, doc_back_path, doc_front_path)
+    extracted_data = extractor.process_and_extract(doc_front_path)
+    name, dob = extractor.parse_ocr_data(extracted_data)
 
+    # Convert extracted date to a date object if available
+    try:
+        dob_obj = datetime.strptime(dob, '%Y-%m-%d').date() if dob else None
+    except Exception:
+        dob_obj = None
 
-    if User.query.filter_by(username=username).first():
-        return jsonify({'error': 'Username already exists!'}), 400
-
-    hashed_pwd = bcrypt.generate_password_hash(password).decode('utf-8')
-    new_user = User(username=username, email=mail, phone=tel, password=hashed_pwd)
+    new_user = User(name=extracted_data.get('name'),
+                    date_of_birth=extracted_data.get('date_of_birth'))
     db.session.add(new_user)
-    db.session.flush()
+    db.session.flush()  # Flush to obtain new_user.user_id before commit
 
-    new_profile = Profile(user_id=new_user.user_id, verification=False)
+    new_image = Image(image_url=doc_front_path, user_id=new_user.user_id)
+    db.session.add(new_image)
+
+    new_document = Document(
+        document_url = doc_front_path,
+        document_name = secure_filename(documentFront.filename),
+        document_type = documentType,
+        extracted_text = extracted_data,
+        user_id = new_user.user_id
+    )
+    db.session.add(new_document)
+
+    new_profile = Profile(user_id=new_user.user_id, verification=True)
     db.session.add(new_profile)
-    
-
-    #document upload
-
-    uploaded = request.files.getlist('files')
-    for file in uploaded:
-        if file.filename == '':
-            continue
-
-        filename = secure_filename(file.filename)
-        file_url = save_file_to_storage(file)
-        if filename.lower().endswith(('.jpg', '.png', '.jpeg')):
-            new_image = Image(image_url=file_url, user_id=new_user.user_id)
-            db.session.add(new_image)
-        else:
-            new_doc = Document(
-                document_name=filename, 
-                document_type=filename.split('.')[-1],
-                document_url = file_url,
-                user_id = new_user.user_id
-            )
-
-            db.session.add(new_doc)
-    
     db.session.commit()
-    return jsonify({'message': 'User Created Successfully!'}), 201
 
+    response_data =  {
+        'name': name,
+        'date_of_birth': dob,
+        'ocr_text': extracted_data,
+        'userId': new_user.user_id
+    }
 
+    return jsonify(response_data), 200
 
+    
 
 
 #ROUTE TO LOGIN AND GENERATE AN ACCESS TOKEN WHEN USER FACE IS VERIFIED
-@app.route('/login', methods=['POST'])
-def login():
-    username = request.form.get('username')
-    password = request.form.get('password')
+@app.route('/generate_token', methods=['POST'])
+def generate_token():
+    data = request.get_json()
+    user_id = data.get('userId')
+    selfie = request.files.get('selfie')
 
-    login_image = request.files.get('login_image')
-    if not login_image:
-        return jsonify({'error': 'Login image is required for face verification'}), 400
+    if not user_id:
+        return jsonify({'error': 'userId is required'}), 400
+    
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    if not selfie:
+        return jsonify({'error': 'Selfie image is required!'}), 400
     
     
-    login_image_path = save_file_to_storage(login_image)    
+    selfie_image_path = save_file_to_storage(selfie)    
 
-    user = User.query.filter_by(username=username).first()
-    if not user or not bcrypt.check_password_hash(user.password, password):
-        return jsonify({'error': 'Invalid credentials'}), 401
     
 
     if not user.images or len(user.images) == 0:
@@ -134,15 +134,15 @@ def login():
     
     registered_image_path = user.images[0].image_url
     comparator = Image_compare()
-    match = comparator.compare(login_image_path, registered_image_path)
+    match = comparator.compare(selfie_image_path, registered_image_path)
     
     if not match:
         return jsonify({'error': 'Face does not match the registered ID image'}), 401
     
     
-    access_token = create_access_token(identity=str(user.user_id), expires_delta=timedelta(seconds=60))
+    access_token = create_access_token(identity=str(user.user_id), expires_delta=timedelta(hours=1))
     user.profile.token = access_token
-    user.profile.token_expiry = datetime.utcnow() + timedelta(seconds=60)
+    user.profile.token_expiry = datetime.utcnow() + timedelta(hours=1)
     db.session.commit()
 
     return jsonify({'access_token': access_token}), 200
@@ -152,9 +152,9 @@ def login():
     
 #ROUTE TO FETCH USER DETAILS FROM TOKEN
 
-@app.route('/user', methods=['GET'])
+@app.route('/verify-user', methods=['GET'])
 @jwt_required()
-def profile():
+def verify_user():
     user_id = get_jwt_identity()
     user = User.query.get(user_id)
 
@@ -173,6 +173,8 @@ def profile():
 
     return jsonify({
         'username': user.username,
+        'date_of_birth': user.date_of_birth.strftime('%Y-%m-%d') if user.date_of_birth else None,
+        'userId': user.user_id,
         'email': user.email,
         'phone': user.phone,
         'images': [img.image_url for img in user.images],

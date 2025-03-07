@@ -1,5 +1,6 @@
 import cv2
 import pytesseract
+import re
 
 
 # Set Tesseract path if needed (Windows)
@@ -27,6 +28,20 @@ class ImageExtractor:
             return text
         except Exception as e:
             return f"Error processing image: {str(e)}"
+        
+
+    def parse_ocr_data(self, ocr_text):
+        """
+        Attempt to extract the user's name and date of birth from the OCR text.
+        Here we assume the first non-empty line is the name and look for a date pattern.
+        """
+        # Look for a date in the format YYYY-MM-DD
+        dob_match = re.search(r'(\d{4}-\d{2}-\d{2})', ocr_text)
+        dob = dob_match.group(1) if dob_match else None
+        # Assume the first non-empty line is the name
+        lines = [line.strip() for line in ocr_text.splitlines() if line.strip()]
+        name = lines[0] if lines else "Unknown"
+        return name, dob
 
 # Test OCR on an image
 # image_path = "D:/Smoke_IT/BackendUIV/ID_card.jpg"
