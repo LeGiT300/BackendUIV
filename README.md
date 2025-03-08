@@ -104,7 +104,8 @@ Process and store user documents
     "name": "extracted_name",
     "date_of_birth": "YYYY-MM-DD",
     "ocr_text": "extracted_text",
-    "userId": "user_id"
+    "userId": "user_id",
+    "document_type": "document_type"
   }
   ```
 
