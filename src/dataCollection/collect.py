@@ -10,6 +10,7 @@ from flask_jwt_extended import (
     JWTManager, create_access_token, jwt_required, get_jwt_identity
 )
 
+# Add project root to path
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(project_root)
 
@@ -21,8 +22,6 @@ try:
 except ImportError as e:
     print(f"Import Error: {e}")
     traceback.print_exc()
-    # For testing, you might want to create mock classes if imports fail
-    # This is just for diagnostics
 
 from dotenv import load_dotenv
 import logging
@@ -33,7 +32,7 @@ if not os.path.exists(log_dir):
     os.makedirs(log_dir)
 
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=logging.INFO,  # Changed from DEBUG to INFO for production
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
         logging.FileHandler(os.path.join(log_dir, 'app.log')),
@@ -58,14 +57,28 @@ bcrypt = Bcrypt(app)
 
 # Load environment variables
 load_dotenv()
-KEY = os.getenv('JWT_TOKEN')
-logger.debug(f"JWT_TOKEN environment variable present: {KEY is not None}")
+KEY = os.getenv('JWT_SECRET_KEY')  # Simplified to directly use JWT_SECRET_KEY
+if not KEY:
+    logger.warning("JWT_SECRET_KEY not found in environment variables. Using a default key is NOT recommended for production.")
+    KEY = "default_insecure_key_change_this_in_production"  # Default fallback, but warn
 
 # Configure Flask app
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///uiv.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URI', 'sqlite:///uiv.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', KEY)
+app.config['JWT_SECRET_KEY'] = KEY
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max upload
+
+# Set upload folders
+UPLOAD_FOLDERS = {
+    'selfies': os.getenv('UPLOAD_FOLDER_SELFIES', 'uploads/selfies'),
+    'front': os.getenv('UPLOAD_FOLDER_FRONT', 'uploads/front'),
+    'back': os.getenv('UPLOAD_FOLDER_BACK', 'uploads/back'),
+    'test': os.getenv('UPLOAD_FOLDER_TEST', 'uploads/test')
+}
+
+# Ensure upload directories exist
+for folder in UPLOAD_FOLDERS.values():
+    os.makedirs(folder, exist_ok=True)
 
 # Initialize JWT with error handling
 try:
@@ -85,23 +98,24 @@ except Exception as e:
     logger.error(f"Failed to initialize database: {e}")
     traceback.print_exc()
 
-# Debug middleware to log all requests
-@app.before_request
-def log_request_info():
-    logger.debug('Headers: %s', request.headers)
-    logger.debug('Body: %s', request.get_data())
-    logger.debug('Form: %s', request.form)
-    logger.debug('Args: %s', request.args)
-    logger.debug('Files: %s', list(request.files.keys()) if request.files else "No files")
-    
-    # Debug multipart forms specifically
-    if request.content_type and 'multipart/form-data' in request.content_type:
-        logger.debug('Processing multipart form data')
-        for key in request.form:
-            logger.debug(f'Form field: {key} = {request.form[key]}')
-        for file_key in request.files:
-            file = request.files[file_key]
-            logger.debug(f'File field: {file_key}, filename={file.filename}, content_type={file.content_type}')
+# Only log detailed request info in development
+if os.getenv('FLASK_ENV') == 'development':
+    @app.before_request
+    def log_request_info():
+        logger.debug('Headers: %s', request.headers)
+        logger.debug('Body: %s', request.get_data())
+        logger.debug('Form: %s', request.form)
+        logger.debug('Args: %s', request.args)
+        logger.debug('Files: %s', list(request.files.keys()) if request.files else "No files")
+        
+        # Debug multipart forms specifically
+        if request.content_type and 'multipart/form-data' in request.content_type:
+            logger.debug('Processing multipart form data')
+            for key in request.form:
+                logger.debug(f'Form field: {key} = {request.form[key]}')
+            for file_key in request.files:
+                file = request.files[file_key]
+                logger.debug(f'File field: {file_key}, filename={file.filename}, content_type={file.content_type}')
 
 # Modified file-saving function with better error handling
 def save_file_to_storage(file, path=None):
@@ -113,7 +127,9 @@ def save_file_to_storage(file, path=None):
         
         # Get a secure filename and construct the path
         secure_name = secure_filename(file.filename)
-        file_path = os.path.join(upload_folder, secure_name)
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        unique_filename = f"{timestamp}_{secure_name}"
+        file_path = os.path.join(upload_folder, unique_filename)
         
         # Save the file and log the result
         file.save(file_path)
@@ -141,17 +157,15 @@ def resolve_file_path(file_path):
         file_path,
         os.path.abspath(file_path),
         os.path.join(project_root, file_path),
-        os.path.join('uploads', filename),
-        os.path.join('uploads', 'front', filename),
-        os.path.join('uploads', 'back', filename),
-        os.path.join(project_root, 'uploads', filename),
-        os.path.join(project_root, 'uploads', 'front', filename),
-        os.path.join(project_root, 'uploads', 'back', filename)
+        os.path.join(UPLOAD_FOLDERS['front'], filename),
+        os.path.join(UPLOAD_FOLDERS['back'], filename),
+        os.path.join(UPLOAD_FOLDERS['selfies'], filename),
+        os.path.join(project_root, UPLOAD_FOLDERS['front'], filename),
+        os.path.join(project_root, UPLOAD_FOLDERS['back'], filename),
+        os.path.join(project_root, UPLOAD_FOLDERS['selfies'], filename)
     ]
     
-    logger.debug(f"Searching for {filename} in possible paths:")
     for path in possible_paths:
-        logger.debug(f"Trying path: {path}")
         if os.path.exists(path):
             logger.info(f"Found file at: {path}")
             return path
@@ -181,7 +195,7 @@ def test_upload():
             return jsonify({'error': 'No selected file'}), 400
             
         # Try to save the file
-        file_path = save_file_to_storage(file, 'uploads/test/')
+        file_path = save_file_to_storage(file, UPLOAD_FOLDERS['test'])
         
         return jsonify({
             'success': True,
@@ -193,8 +207,6 @@ def test_upload():
         logger.error(f"Error in test-upload: {e}")
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
-
-
 
 # Endpoint to process documents.
 @app.route('/get-documents', methods=['POST'])
@@ -213,13 +225,9 @@ def get_document():
             logger.debug(f"Missing files: {missing}")
             return jsonify({'error': f'Missing required files: {", ".join(missing)}'}), 400
 
-        # Define separate folders for each file.
-        path_back = 'uploads/back/'
-        path_front = 'uploads/front/'
-
-        # Save the files to their respective folders.
-        doc_back_path = save_file_to_storage(documentBack, path=path_back)
-        doc_front_path = save_file_to_storage(documentFront, path=path_front)
+        # Save the files to their respective folders
+        doc_back_path = save_file_to_storage(documentBack, path=UPLOAD_FOLDERS['back'])
+        doc_front_path = save_file_to_storage(documentFront, path=UPLOAD_FOLDERS['front'])
 
         # Process OCR on the front document.
         extracted_data = extractor.process_and_extract(doc_front_path)
@@ -243,7 +251,7 @@ def get_document():
 
         # Handle front document first since it needs OCR text
         front_filename = secure_filename(documentFront.filename)
-        doc_type = request.form.get('document_type')
+        doc_type = request.form.get('document_type', 'ID')  # Default to 'ID' if not specified
         
         # Create unique document names with timestamp
         front_doc_name = f"front_{timestamp}_{front_filename}"
@@ -258,7 +266,7 @@ def get_document():
         # Create a Document record for the front document with OCR text
         front_document = Document(
             document_url=doc_front_path,
-            document_name=front_doc_name,  # Using unique name with timestamp
+            document_name=front_doc_name,
             document_type=doc_type,
             extracted_text=extracted_data,
             user_id=new_user.user_id
@@ -275,7 +283,7 @@ def get_document():
         else:
             back_document = Document(
                 document_url=doc_back_path,
-                document_name=back_doc_name,  # Using unique name with timestamp
+                document_name=back_doc_name,
                 document_type=doc_type,
                 user_id=new_user.user_id
             )
@@ -302,20 +310,10 @@ def get_document():
         return jsonify({'error': str(e)}), 500
 
 # ROUTE TO LOGIN AND GENERATE AN ACCESS TOKEN WHEN USER FACE IS VERIFIED
-UPLOAD_FOLDERS = {
-    'selfies': 'uploads/selfies',
-    'front': 'uploads/front',
-    'back': 'uploads/back'
-}
-
-# Ensure upload directories exist
-for folder in UPLOAD_FOLDERS.values():
-    os.makedirs(folder, exist_ok=True)
-
 @app.route('/generate-token', methods=['POST'])
 def generate_token():
     try:
-        logger.info("========== GENERATE TOKEN REQUEST ==========")
+        logger.info("Processing token generation request")
         
         # Get the most recently created user
         latest_user = User.query.order_by(User.user_id.desc()).first()
@@ -358,8 +356,8 @@ def generate_token():
                 attempted_paths.append({
                     'original': registered_image_path,
                     'attempted': [
-                        os.path.join('uploads', 'front', os.path.basename(registered_image_path)),
-                        os.path.join('uploads', 'back', os.path.basename(registered_image_path))
+                        os.path.join(UPLOAD_FOLDERS['front'], os.path.basename(registered_image_path)),
+                        os.path.join(UPLOAD_FOLDERS['back'], os.path.basename(registered_image_path))
                     ]
                 })
                 continue
@@ -386,25 +384,22 @@ def generate_token():
                 'details': {
                     'attempted_paths': attempted_paths,
                     'selfie_path': selfie_image_path,
-                    'search_locations': [
-                        'uploads/front',
-                        'uploads/back',
-                        'uploads/selfies'
-                    ]
+                    'search_locations': list(UPLOAD_FOLDERS.values())
                 }
             }), 401
 
-        # Generate JWT token (expires in 60 seconds)
+        # Generate JWT token (expires in 1 hour) - UPDATED FROM 60 SECONDS TO 1 HOUR
+        one_hour = timedelta(hours=1)
         access_token = create_access_token(
             identity=str(latest_user.user_id), 
-            expires_delta=timedelta(seconds=60)
+            expires_delta=one_hour
         )
 
-        # Update or create user profile with token details
+        # Update or create user profile with token details (also set to 1 hour)
         if not latest_user.profile:
             latest_user.profile = Profile(user_id=latest_user.user_id, verification=True)
         latest_user.profile.token = access_token
-        latest_user.profile.token_expiry = datetime.utcnow() + timedelta(hours=3)
+        latest_user.profile.token_expiry = datetime.utcnow() + one_hour  # UPDATED FROM 3 HOURS TO 1 HOUR
         db.session.commit()
 
         logger.info(f"Token generated successfully for user {latest_user.user_id}")
@@ -508,5 +503,9 @@ def server_error(error):
     }), 500
 
 if __name__ == '__main__':
-    logger.info("Starting Flask server")
-    app.run(debug=True)
+    port = int(os.getenv('PORT', 5000))
+    host = os.getenv('HOST', '0.0.0.0')
+    debug = os.getenv('FLASK_DEBUG', 'False').lower() in ('true', '1', 't')
+    
+    logger.info(f"Starting Flask server on {host}:{port} (debug={debug})")
+    app.run(host=host, port=port, debug=debug)
