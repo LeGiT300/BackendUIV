@@ -276,7 +276,7 @@ def get_document():
             back_document = Document(
                 document_url=doc_back_path,
                 document_name=back_doc_name,  # Using unique name with timestamp
-                document_type=back_filename.rsplit('.', 1)[-1],
+                document_type=doc_type,
                 user_id=new_user.user_id
             )
             db.session.add(back_document)
@@ -291,7 +291,8 @@ def get_document():
             'name': name,
             'date_of_birth': dob,
             'ocr_text': extracted_data,
-            'userId': new_user.user_id
+            'userId': new_user.user_id,
+            'document_type': doc_type
         }
 
         return jsonify(response_data), 200
