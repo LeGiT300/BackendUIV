@@ -133,19 +133,30 @@ def resolve_file_path(file_path):
     if os.path.exists(file_path):
         return file_path
         
-    # Try common locations
+    # Get the filename from the path
+    filename = os.path.basename(file_path)
+    
+    # Try common locations including the specific upload folders
     possible_paths = [
         file_path,
         os.path.abspath(file_path),
         os.path.join(project_root, file_path),
-        os.path.join('uploads', os.path.basename(file_path)),
-        os.path.join(project_root, 'uploads', os.path.basename(file_path))
+        os.path.join('uploads', filename),
+        os.path.join('uploads', 'front', filename),
+        os.path.join('uploads', 'back', filename),
+        os.path.join(project_root, 'uploads', filename),
+        os.path.join(project_root, 'uploads', 'front', filename),
+        os.path.join(project_root, 'uploads', 'back', filename)
     ]
     
+    logger.debug(f"Searching for {filename} in possible paths:")
     for path in possible_paths:
+        logger.debug(f"Trying path: {path}")
         if os.path.exists(path):
+            logger.info(f"Found file at: {path}")
             return path
             
+    logger.warning(f"Could not find file in any of the possible locations: {filename}")
     return None
 
 # Diagnostic endpoint to test basic functionality
@@ -225,9 +236,16 @@ def get_document():
         db.session.flush()  # Get new_user.user_id before commit
         logger.debug(f"Created new user with ID: {new_user.user_id}")
 
+        # Generate timestamp for unique document names
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+
         # Handle front document first since it needs OCR text
         front_filename = secure_filename(documentFront.filename)
         doc_type = front_filename.rsplit('.', 1)[-1] if '.' in front_filename else 'unknown'
+        
+        # Create unique document names with timestamp
+        front_doc_name = f"front_{timestamp}_{front_filename}"
+        back_doc_name = f"back_{timestamp}_{secure_filename(documentBack.filename)}"
         
         # Create an Image record if it's an image file
         if front_filename.lower().endswith(('.jpg', '.png', '.jpeg')):
@@ -238,7 +256,7 @@ def get_document():
         # Create a Document record for the front document with OCR text
         front_document = Document(
             document_url=doc_front_path,
-            document_name=f"front_{front_filename}",  # Make name unique by adding prefix
+            document_name=front_doc_name,  # Using unique name with timestamp
             document_type=doc_type,
             extracted_text=extracted_data,
             user_id=new_user.user_id
@@ -255,7 +273,7 @@ def get_document():
         else:
             back_document = Document(
                 document_url=doc_back_path,
-                document_name=f"back_{back_filename}",  # Make name unique by adding prefix
+                document_name=back_doc_name,  # Using unique name with timestamp
                 document_type=back_filename.rsplit('.', 1)[-1],
                 user_id=new_user.user_id
             )
@@ -281,238 +299,130 @@ def get_document():
         return jsonify({'error': str(e)}), 500
 
 # ROUTE TO LOGIN AND GENERATE AN ACCESS TOKEN WHEN USER FACE IS VERIFIED
+UPLOAD_FOLDERS = {
+    'selfies': 'uploads/selfies',
+    'front': 'uploads/front',
+    'back': 'uploads/back'
+}
+
+# Ensure upload directories exist
+for folder in UPLOAD_FOLDERS.values():
+    os.makedirs(folder, exist_ok=True)
+
 @app.route('/generate-token', methods=['POST'])
 def generate_token():
-    logger.info("=========== GENERATE TOKEN REQUEST RECEIVED ===========")
     try:
-        # Log as much request information as possible
-        logger.info(f"Content-Type: {request.content_type}")
-        logger.info(f"Request method: {request.method}")
-        logger.info(f"Request headers: {dict(request.headers)}")
+        logger.info("========== GENERATE TOKEN REQUEST ==========")
         
-        # Check if we can access form data
-        try:
-            form_data = dict(request.form)
-            logger.info(f"Form data: {form_data}")
-        except Exception as e:
-            logger.error(f"Error accessing form data: {e}")
-        
-        # Check if we can access files
-        try:
-            file_keys = list(request.files.keys())
-            logger.info(f"File keys: {file_keys}")
-            for key in file_keys:
-                file = request.files[key]
-                logger.info(f"File {key}: filename={file.filename}, content_type={file.content_type}")
-        except Exception as e:
-            logger.error(f"Error accessing files: {e}")
-
-        # First, check if this is actually a multipart request
-        if not request.content_type or 'multipart/form-data' not in request.content_type:
-            logger.error(f"Invalid content type: {request.content_type}")
-            return jsonify({
-                'error': 'Invalid Content-Type', 
-                'message': 'Request must be multipart/form-data',
-                'content_type': request.content_type
-            }), 400
-
-        # Extract userId from form
+        # Extract userId from form data
         user_id = request.form.get('userId')
-        logger.info(f"User ID from form: {user_id}")
-        
         if not user_id:
-            logger.error("userId is missing from form data")
-            return jsonify({
-                'error': 'Missing user ID',
-                'message': 'userId field is required in form data',
-                'form_data': dict(request.form)
-            }), 400
-        
+            logger.error("Missing user ID")
+            return jsonify({'error': 'Missing user ID'}), 400
         if not user_id.isdigit():
-            logger.error(f"Invalid user ID format: {user_id}")
-            return jsonify({
-                'error': 'Invalid user ID',
-                'message': 'userId must be a numeric value'
-            }), 400
+            logger.error("Invalid user ID format")
+            return jsonify({'error': 'Invalid user ID'}), 400
 
-        # Extract selfie file
-        selfie = request.files.get('selfie')
-        logger.info(f"Selfie from files: {selfie}")
-        
-        if not selfie:
-            logger.error("selfie file is missing")
-            return jsonify({
-                'error': 'Missing selfie',
-                'message': 'selfie file is required',
-                'available_files': list(request.files.keys())
-            }), 400
-        
+        # Extract selfie image from request files
+        if 'selfie' not in request.files:
+            logger.error("Selfie image is required")
+            return jsonify({'error': 'Selfie image is required'}), 400
+        selfie = request.files['selfie']
         if not selfie.filename:
             logger.error("Selfie filename is empty")
-            return jsonify({
-                'error': 'Empty filename',
-                'message': 'Selfie file must have a filename'
-            }), 400
+            return jsonify({'error': 'Selfie file must have a filename'}), 400
 
-        # Validate file type
-        allowed_extensions = {'png', 'jpg', 'jpeg'}
-        if '.' not in selfie.filename:
-            logger.error(f"No file extension in filename: {selfie.filename}")
-            return jsonify({
-                'error': 'Invalid file',
-                'message': 'Filename must include extension'
-            }), 400
-            
-        extension = selfie.filename.rsplit('.', 1)[1].lower()
-        if extension not in allowed_extensions:
-            logger.error(f"Invalid file extension: {extension}")
-            return jsonify({
-                'error': 'Invalid file type',
-                'message': f'File extension must be one of {allowed_extensions}',
-                'provided': extension
-            }), 400
+        # Save the selfie image
+        selfie_image_path = save_file_to_storage(selfie, path=UPLOAD_FOLDERS['selfies'])
+        logger.info(f"Saved selfie image to: {selfie_image_path}")
 
-        # Try to find the user
-        try:
-            user = User.query.get(int(user_id))
-            if not user:
-                logger.error(f"User not found: {user_id}")
-                return jsonify({
-                    'error': 'User not found',
-                    'message': f'No user exists with ID {user_id}'
-                }), 404
-            logger.info(f"Found user: {user.name if hasattr(user, 'name') else 'unnamed'} (ID: {user.user_id})")
-        except Exception as e:
-            logger.error(f"Database error looking up user: {e}")
-            return jsonify({
-                'error': 'Database error',
-                'message': f'Error retrieving user: {str(e)}'
-            }), 500
+        # Retrieve the user by user_id
+        user = User.query.get(int(user_id))
+        if not user:
+            logger.error(f"User not found: {user_id}")
+            return jsonify({'error': 'User not found'}), 404
 
-        # Try to save the selfie file
-        try:
-            selfie_dir = 'uploads/selfies/'
-            if not os.path.exists(selfie_dir):
-                os.makedirs(selfie_dir)
-            
-            # Generate a unique filename to avoid conflicts
-            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-            secure_name = f"{user_id}_{timestamp}_{secure_filename(selfie.filename)}"
-            selfie_image_path = os.path.join(selfie_dir, secure_name)
-            
-            # Save the file
-            selfie.save(selfie_image_path)
-            logger.info(f"Saved selfie to {selfie_image_path}")
-        except Exception as e:
-            logger.error(f"Error saving selfie file: {e}")
-            traceback.print_exc()
-            return jsonify({
-                'error': 'File save error',
-                'message': f'Could not save selfie file: {str(e)}'
-            }), 500
+        # Ensure the user has at least one registered image
+        if not user.images or len(user.images) == 0:
+            logger.error(f"No registered image found for user {user_id}")
+            return jsonify({'error': 'No registered image found for verification'}), 400
 
-        # Check if user has registered images
-        try:
-            if not hasattr(user, 'images') or not user.images or len(user.images) == 0:
-                logger.error(f"User {user_id} has no registered images")
-                return jsonify({
-                    'error': 'No registered image',
-                    'message': 'User has no registered ID image for verification'
-                }), 400
-            
-            # Get the first registered image for comparison
-            registered_image_path = user.images[0].image_url
-            logger.info(f"Using registered image: {registered_image_path}")
-            
-            # Verify and fix path if needed
-            registered_image_path = resolve_file_path(registered_image_path)
-            if not registered_image_path:
-                logger.error(f"Registered image file not found: {registered_image_path}")
-                return jsonify({
-                    'error': 'Image not found',
-                    'message': 'Registered image file is missing',
-                    'details': {
-                        'attempted_paths': [registered_image_path],
-                        'project_root': project_root
-                    }
-                }), 500
-        except Exception as e:
-            logger.error(f"Error accessing user images: {e}")
-            traceback.print_exc()
-            return jsonify({
-                'error': 'Image access error',
-                'message': f'Error accessing user images: {str(e)}'
-            }), 500
+        # Compare the selfie against registered images
+        comparator = Image_compare()
+        match_found = False
+        attempted_paths = []
 
-        # Compare the selfie with the registered image
-        try:
-            comparator = Image_compare()
-            logger.info("Initialized Image_compare")
+        for image in user.images:
+            registered_image_path = image.image_url
+            logger.info(f"Checking registered image: {registered_image_path}")
             
-            match = comparator.compare(selfie_image_path, registered_image_path)
-            logger.info(f"Face comparison result: {'Match' if match else 'No match'}")
-            
-            if not match:
-                return jsonify({
-                    'error': 'Face mismatch',
-                    'message': 'Face does not match the registered ID image'
-                }), 401
-        except Exception as e:
-            logger.error(f"Error comparing images: {e}")
-            traceback.print_exc()
-            return jsonify({
-                'error': 'Comparison error',
-                'message': f'Error during face comparison: {str(e)}'
-            }), 500
+            # Try to resolve the correct path
+            resolved_path = resolve_file_path(registered_image_path)
+            if not resolved_path:
+                logger.warning(f"Could not resolve path for: {registered_image_path}")
+                attempted_paths.append({
+                    'original': registered_image_path,
+                    'attempted': [
+                        os.path.join('uploads', 'front', os.path.basename(registered_image_path)),
+                        os.path.join('uploads', 'back', os.path.basename(registered_image_path))
+                    ]
+                })
+                continue
 
-        # Generate JWT token
-        try:
-            access_token = create_access_token(
-                identity=str(user.user_id), expires_delta=timedelta(hours=1)
-            )
-            logger.info(f"Generated access token for user {user_id}")
+            logger.info(f"Found registered image at: {resolved_path}")
             
-            # Update user profile with token
-            if not hasattr(user, 'profile') or not user.profile:
-                # Create profile if it doesn't exist
-                logger.info(f"Creating new profile for user {user_id}")
-                profile = Profile(user_id=user.user_id, verification=True)
-                profile.token = access_token
-                profile.token_expiry = datetime.utcnow() + timedelta(hours=1)
-                db.session.add(profile)
-            else:
-                logger.info(f"Updating existing profile for user {user_id}")
-                user.profile.token = access_token
-                user.profile.token_expiry = datetime.utcnow() + timedelta(hours=1)
-            
-            db.session.commit()
-            logger.info(f"Saved token to database for user {user_id}")
-        except Exception as e:
-            logger.error(f"Error generating or storing token: {e}")
-            traceback.print_exc()
-            return jsonify({
-                'error': 'Token error',
-                'message': f'Error generating or storing access token: {str(e)}'
-            }), 500
+            try:
+                if comparator.compare(selfie_image_path, resolved_path):
+                    match_found = True
+                    logger.info(f"Face match found with image: {resolved_path}")
+                    break
+            except Exception as e:
+                logger.error(f"Error comparing images: {e}")
+                attempted_paths.append({
+                    'path': resolved_path,
+                    'error': str(e)
+                })
+                continue
 
-        # Success!
-        logger.info(f"Successfully generated token for user {user_id}")
-        return jsonify({
-            'success': True,
-            'access_token': access_token, 
-            'userId': user.user_id,
-            'expires_in': 3600
-        }), 200
-    
+        if not match_found:
+            logger.error("Face verification failed")
+            return jsonify({
+                'error': 'Face verification failed',
+                'details': {
+                    'attempted_paths': attempted_paths,
+                    'selfie_path': selfie_image_path,
+                    'search_locations': [
+                        'uploads/front',
+                        'uploads/back',
+                        'uploads/selfies'
+                    ]
+                }
+            }), 401
+
+        # Generate JWT token (expires in 60 seconds)
+        access_token = create_access_token(
+            identity=str(user.user_id), 
+            expires_delta=timedelta(seconds=60)
+        )
+
+        # Update or create user profile with token details
+        if not user.profile:
+            user.profile = Profile(user_id=user.user_id, verification=True)
+        user.profile.token = access_token
+        user.profile.token_expiry = datetime.utcnow() + timedelta(seconds=60)
+        db.session.commit()
+
+        logger.info(f"Token generated successfully for user {user_id}")
+        return jsonify({'access_token': access_token}), 200
+
     except Exception as e:
-        logger.error(f"Unhandled error in generate_token: {e}")
+        logger.error(f"Error in generate_token endpoint: {e}")
         traceback.print_exc()
         return jsonify({
-            'error': 'Server error',
-            'message': f'An unexpected error occurred: {str(e)}'
+            'error': 'Internal server error',
+            'message': str(e)
         }), 500
-    finally:
-        logger.info("=========== GENERATE TOKEN REQUEST COMPLETED ===========")
+
 
 # ROUTE TO FETCH USER DETAILS FROM TOKEN
 @app.route('/verify-user', methods=['GET'])
