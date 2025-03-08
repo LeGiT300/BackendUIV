@@ -180,7 +180,7 @@ Logs are stored in `logs/app.log` with detailed information about:
 
 ## License
 
-Distributed under the MIT License. See `[LICENSE](https://github.com/LeGiT300/BackendUIV/blob/main/LICENSE)` for more information.
+Distributed under the MIT License. See `LICENSE` for more information.
 
 ## Acknowledgments
 
