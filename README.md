@@ -97,6 +97,7 @@ Process and store user documents
 - **Body:**
   - `documentFront`: Front of ID document
   - `documentBack`: Back of ID document
+  - `document_type`: Document type (ID, Passport or others)
 - **Response:**
   ```json
   {
