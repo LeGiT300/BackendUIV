@@ -108,15 +108,34 @@ Process and store user documents
   ```
 
 ### POST /generate-token
-Generate authentication token using facial verification
+Generate authentication token using facial verification. Uses the most recently created user automatically.
 - **Content-Type:** `multipart/form-data`
 - **Body:**
-  - `userId`: User ID
-  - `selfie`: User selfie image
+  - `selfie`: User selfie image for verification
 - **Response:**
   ```json
   {
     "access_token": "jwt_token"
+  }
+  ```
+- **Error Responses:**
+  ```json
+  {
+    "error": "No users found. Please complete document registration first."
+  }
+  ```
+  ```json
+  {
+    "error": "Face verification failed",
+    "details": {
+      "attempted_paths": ["path1", "path2"],
+      "selfie_path": "path/to/selfie",
+      "search_locations": [
+        "uploads/front",
+        "uploads/back",
+        "uploads/selfies"
+      ]
+    }
   }
   ```
 
@@ -142,6 +161,31 @@ Verify user token and retrieve user details
   }
   ```
 
+## Usage Flow
+
+1. **Document Registration:**
+   ```bash
+   curl -X POST \
+     -F "documentFront=@front.jpg" \
+     -F "documentBack=@back.jpg" \
+     http://localhost:5000/get-documents
+   ```
+
+2. **Token Generation:**
+   ```bash
+   # Use immediately after document registration
+   curl -X POST \
+     -F "selfie=@selfie.jpg" \
+     http://localhost:5000/generate-token
+   ```
+
+3. **User Verification:**
+   ```bash
+   curl -X GET \
+     -H "Authorization: Bearer your_token_here" \
+     http://localhost:5000/verify-user
+   ```
+
 ## Development
 
 ### Running Tests
@@ -162,13 +206,14 @@ Logs are stored in `logs/app.log` with detailed information about:
 
 ## Security Features
 
-- JWT-based authentication with 1-hour token expiry
+- JWT-based authentication with 60-second token expiry
+- Token storage in user profile
 - Secure file upload handling with type verification
 - Path traversal prevention
 - SQL injection protection
-- Comprehensive error handling
-- Request logging and monitoring
-- Facial verification with multiple detection methods
+- Comprehensive error handling and logging
+- Face verification with confidence scoring
+- Automatic cleanup of expired tokens
 
 ## Contributing
 
