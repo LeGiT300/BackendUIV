@@ -38,27 +38,27 @@ BackendUIV/
 
 ### System Requirements
 
-- Python 3.8 or higher
-- Tesseract OCR engine
-- Visual Studio Build Tools (for Windows)
+- Docker (alternatively: Python 3.8 or higher)
+- Tesseract OCR engine (for non-Docker setup)
+- Visual Studio Build Tools (for non-Docker setup)
 - SQLite database
 
-### Required Software
+### Docker Installation
 
-1. **Visual Studio Build Tools**
-   - Download from [Visual Studio Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
-   - Select "Desktop development with C++"
+1. **Install Docker Desktop**
+   - Download from [Docker Desktop](https://www.docker.com/products/docker-desktop)
+   - Follow installation instructions for Windows
 
-2. **Tesseract OCR**
+2. **Build and Run with Docker**
    ```batch
-   winget install UB-Mannheim.TesseractOCR
-   ```
-   After installation, verify Tesseract is in PATH or set it in your code:
-   ```python
-   pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+   # Build the image
+   docker build -t backendui:latest .
+
+   # Run the container
+   docker run -p 5000:5000 -v %cd%/uploads:/app/uploads -v %cd%/logs:/app/logs backendui:latest
    ```
 
-## Installation
+### Manual Installation
 
 1. **Clone the repository**
    ```batch
@@ -196,7 +196,19 @@ Verify user token and retrieve user details
 python -m pytest tests/ -v
 ```
 
-### Logging
+### Docker Development
+
+1. **Build the development image:**
+   ```batch
+   docker build -t backendui:dev --target development .
+   ```
+
+2. **Run with volume mounts for development:**
+   ```batch
+   docker run -p 5000:5000 -v %cd%:/app backendui:dev
+   ```
+
+### Local Development
 
 Logs are stored in `logs/app.log` with detailed information about:
 - Request details
@@ -208,16 +220,23 @@ Logs are stored in `logs/app.log` with detailed information about:
 
 ## Security Features
 
-- JWT-based authentication with 60-second token expiry
+- JWT-based authentication with 1-hour token expiry
 - Token storage in user profile
-- Secure file upload handling with type verification
+- Secure file upload handling
 - Path traversal prevention
 - SQL injection protection
-- Comprehensive error handling and logging
+- Comprehensive error handling
 - Face verification with confidence scoring
-- Automatic cleanup of expired tokens
+- Docker container security
+  - Non-root user
+  - Minimal base image
+  - Secure volume mounts
 
-## Contributing
+## Additional Files
+
+- `Dockerfile`: Container configuration
+- `.dockerignore`: Docker build exclusions
+- `docker-compose.yml`: Multi-container setup
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
