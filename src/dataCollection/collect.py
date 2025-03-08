@@ -409,7 +409,7 @@ def generate_token():
         if not user.profile:
             user.profile = Profile(user_id=user.user_id, verification=True)
         user.profile.token = access_token
-        user.profile.token_expiry = datetime.utcnow() + timedelta(seconds=60)
+        user.profile.token_expiry = datetime.utcnow() + timedelta(hours=1)
         db.session.commit()
 
         logger.info(f"Token generated successfully for user {user_id}")
@@ -459,15 +459,20 @@ def verify_user():
             logger.error("Token expired")
             return jsonify({'error': 'The token is expired'}), 401
 
+        # Only include fields that exist in the User model
         response = {
-            'username': user.username,
+            'userId': user.user_id,
             'name': user.name,
             'date_of_birth': user.date_of_birth.strftime('%Y-%m-%d') if user.date_of_birth else None,
-            'userId': user.user_id,
-            'email': user.email,
-            'phone': user.phone,
-            'images': [img.image_url for img in user.images] if hasattr(user, 'images') else [],
-            'documents': [doc.document_url for doc in user.documents] if hasattr(user, 'documents') else []
+            'verification_status': profile.verification if profile else False,
+            'images': [img.image_url for img in user.images] if user.images else [],
+            'documents': [
+                {
+                    'url': doc.document_url,
+                    'type': doc.document_type,
+                    'extracted_text': doc.extracted_text
+                } for doc in user.documents
+            ] if user.documents else []
         }
         
         logger.info(f"Returning user data for user {user_id}")
