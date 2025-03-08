@@ -15,7 +15,7 @@ python-dotenv
 # Image Processing & Computer Vision
 opencv-python
 face-recognition
-dlib
+pip install git+https://github.com/davisking/dlib.git
 Pillow
 numpy
 
