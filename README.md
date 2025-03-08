@@ -62,7 +62,7 @@ BackendUIV/
 
 1. **Clone the repository**
    ```batch
-   git clone [repository-url]
+   git clone https://github.com/LeGiT300/BackendUIV
    cd BackendUIV
    ```
 
