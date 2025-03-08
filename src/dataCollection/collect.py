@@ -194,6 +194,8 @@ def test_upload():
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
+
+
 # Endpoint to process documents.
 @app.route('/get-documents', methods=['POST'])
 def get_document():
@@ -241,7 +243,7 @@ def get_document():
 
         # Handle front document first since it needs OCR text
         front_filename = secure_filename(documentFront.filename)
-        doc_type = front_filename.rsplit('.', 1)[-1] if '.' in front_filename else 'unknown'
+        doc_type = request.form.get('document_type')
         
         # Create unique document names with timestamp
         front_doc_name = f"front_{timestamp}_{front_filename}"
@@ -314,19 +316,17 @@ def generate_token():
     try:
         logger.info("========== GENERATE TOKEN REQUEST ==========")
         
-        # Extract userId from form data
-        user_id = request.form.get('userId')
-        if not user_id:
-            logger.error("Missing user ID")
-            return jsonify({'error': 'Missing user ID'}), 400
-        if not user_id.isdigit():
-            logger.error("Invalid user ID format")
-            return jsonify({'error': 'Invalid user ID'}), 400
+        # Get the most recently created user
+        latest_user = User.query.order_by(User.user_id.desc()).first()
+        if not latest_user:
+            logger.error("No users found in database")
+            return jsonify({'error': 'No users found. Please complete document registration first.'}), 404
 
         # Extract selfie image from request files
         if 'selfie' not in request.files:
             logger.error("Selfie image is required")
             return jsonify({'error': 'Selfie image is required'}), 400
+        
         selfie = request.files['selfie']
         if not selfie.filename:
             logger.error("Selfie filename is empty")
@@ -336,15 +336,9 @@ def generate_token():
         selfie_image_path = save_file_to_storage(selfie, path=UPLOAD_FOLDERS['selfies'])
         logger.info(f"Saved selfie image to: {selfie_image_path}")
 
-        # Retrieve the user by user_id
-        user = User.query.get(int(user_id))
-        if not user:
-            logger.error(f"User not found: {user_id}")
-            return jsonify({'error': 'User not found'}), 404
-
         # Ensure the user has at least one registered image
-        if not user.images or len(user.images) == 0:
-            logger.error(f"No registered image found for user {user_id}")
+        if not latest_user.images or len(latest_user.images) == 0:
+            logger.error(f"No registered image found for user {latest_user.user_id}")
             return jsonify({'error': 'No registered image found for verification'}), 400
 
         # Compare the selfie against registered images
@@ -352,7 +346,7 @@ def generate_token():
         match_found = False
         attempted_paths = []
 
-        for image in user.images:
+        for image in latest_user.images:
             registered_image_path = image.image_url
             logger.info(f"Checking registered image: {registered_image_path}")
             
@@ -401,18 +395,18 @@ def generate_token():
 
         # Generate JWT token (expires in 60 seconds)
         access_token = create_access_token(
-            identity=str(user.user_id), 
+            identity=str(latest_user.user_id), 
             expires_delta=timedelta(seconds=60)
         )
 
         # Update or create user profile with token details
-        if not user.profile:
-            user.profile = Profile(user_id=user.user_id, verification=True)
-        user.profile.token = access_token
-        user.profile.token_expiry = datetime.utcnow() + timedelta(hours=1)
+        if not latest_user.profile:
+            latest_user.profile = Profile(user_id=latest_user.user_id, verification=True)
+        latest_user.profile.token = access_token
+        latest_user.profile.token_expiry = datetime.utcnow() + timedelta(hours=3)
         db.session.commit()
 
-        logger.info(f"Token generated successfully for user {user_id}")
+        logger.info(f"Token generated successfully for user {latest_user.user_id}")
         return jsonify({'access_token': access_token}), 200
 
     except Exception as e:
