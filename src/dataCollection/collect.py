@@ -504,7 +504,7 @@ def server_error(error):
 
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
-    host = os.getenv('HOST', '0.0.0.0')
+    host = os.getenv('HOST', '192.168.1.43')
     debug = os.getenv('FLASK_DEBUG', 'False').lower() in ('true', '1', 't')
     
     logger.info(f"Starting Flask server on {host}:{port} (debug={debug})")

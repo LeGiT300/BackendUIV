@@ -1,0 +1,228 @@
+2025-03-09 11:01:08,662 - __main__ - INFO - Starting application
+2025-03-09 11:01:08,671 - __main__ - INFO - ImageExtractor initialized successfully
+2025-03-09 11:01:08,673 - __main__ - WARNING - JWT_SECRET_KEY not found in environment variables. Using a default key is NOT recommended for production.
+2025-03-09 11:01:08,678 - __main__ - INFO - JWTManager initialized successfully
+2025-03-09 11:01:08,711 - __main__ - INFO - Database initialized successfully
+2025-03-09 11:01:08,719 - __main__ - INFO - Starting Flask server on 0.0.0.0:5000 (debug=False)
+2025-03-09 11:01:08,744 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.43:5000
+2025-03-09 11:01:08,744 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-03-09 11:03:14,499 - __main__ - INFO - Starting application
+2025-03-09 11:03:14,499 - __main__ - INFO - ImageExtractor initialized successfully
+2025-03-09 11:03:14,499 - __main__ - WARNING - JWT_SECRET_KEY not found in environment variables. Using a default key is NOT recommended for production.
+2025-03-09 11:03:14,508 - __main__ - INFO - JWTManager initialized successfully
+2025-03-09 11:03:14,511 - __main__ - INFO - Database initialized successfully
+2025-03-09 11:03:14,516 - __main__ - INFO - Starting Flask server on 0.0.0.0:5000 (debug=False)
+2025-03-09 11:03:14,536 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.43:5000
+2025-03-09 11:03:14,540 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-03-09 11:03:29,249 - __main__ - ERROR - 404 Not Found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.
+2025-03-09 11:03:29,254 - werkzeug - INFO - 192.168.1.46 - - [09/Mar/2025 11:03:29] "[33mGET / HTTP/1.1[0m" 404 -
+2025-03-09 11:03:30,004 - __main__ - ERROR - 404 Not Found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.
+2025-03-09 11:03:30,004 - werkzeug - INFO - 192.168.1.46 - - [09/Mar/2025 11:03:30] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-03-09 11:04:07,837 - __main__ - INFO - Processing /verify-user request
+2025-03-09 11:04:07,837 - __main__ - INFO - JWT identity: 7
+2025-03-09 11:04:07,871 - __main__ - ERROR - User not found: 7
+2025-03-09 11:04:07,879 - werkzeug - INFO - 192.168.1.43 - - [09/Mar/2025 11:04:07] "[33mGET /verify-user HTTP/1.1[0m" 404 -
+2025-03-09 11:04:19,437 - werkzeug - INFO - 192.168.1.46 - - [09/Mar/2025 11:04:19] "[31m[1mGET /verify-user HTTP/1.1[0m" 401 -
+2025-03-09 11:10:37,888 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 11:10:37] "POST /get-documents HTTP/1.1" 200 -
+2025-03-09 11:15:22,886 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 11:15:22] "POST /get-documents HTTP/1.1" 200 -
+2025-03-09 11:19:52,451 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 11:19:52] "POST /get-documents HTTP/1.1" 200 -
+2025-03-09 11:19:52,562 - __main__ - ERROR - 404 Not Found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.
+2025-03-09 11:19:52,562 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 11:19:52] "[33mPOST /verify-document HTTP/1.1[0m" 404 -
+2025-03-09 11:20:54,119 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 11:20:54] "POST /get-documents HTTP/1.1" 200 -
+2025-03-09 11:20:54,170 - __main__ - INFO - Processing token generation request
+2025-03-09 11:20:54,305 - __main__ - INFO - Saved selfie image to: uploads/selfies\20250309_112054_selfie.jpg
+2025-03-09 11:20:54,309 - __main__ - INFO - Checking registered image: uploads/front\20250309_112053_docFront.jpg
+2025-03-09 11:20:54,309 - __main__ - INFO - Found registered image at: uploads/front\20250309_112053_docFront.jpg
+2025-03-09 11:21:11,505 - __main__ - INFO - Face match found with image: uploads/front\20250309_112053_docFront.jpg
+2025-03-09 11:21:11,515 - __main__ - INFO - Token generated successfully for user 4
+2025-03-09 11:21:11,522 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 11:21:11] "POST /generate-token HTTP/1.1" 200 -
+2025-03-09 11:56:32,428 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 11:56:32] "POST /get-documents HTTP/1.1" 200 -
+2025-03-09 11:56:32,480 - __main__ - INFO - Processing token generation request
+2025-03-09 11:56:32,599 - __main__ - INFO - Saved selfie image to: uploads/selfies\20250309_115632_selfie.jpg
+2025-03-09 11:56:32,601 - __main__ - INFO - Checking registered image: uploads/front\20250309_115630_docFront.jpg
+2025-03-09 11:56:32,601 - __main__ - INFO - Found registered image at: uploads/front\20250309_115630_docFront.jpg
+2025-03-09 11:56:44,283 - __main__ - INFO - Face match found with image: uploads/front\20250309_115630_docFront.jpg
+2025-03-09 11:56:44,292 - __main__ - INFO - Token generated successfully for user 5
+2025-03-09 11:56:44,292 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 11:56:44] "POST /generate-token HTTP/1.1" 200 -
+2025-03-09 11:59:50,996 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 11:59:50] "POST /get-documents HTTP/1.1" 200 -
+2025-03-09 11:59:51,042 - __main__ - INFO - Processing token generation request
+2025-03-09 11:59:51,133 - __main__ - INFO - Saved selfie image to: uploads/selfies\20250309_115951_selfie.jpg
+2025-03-09 11:59:51,133 - __main__ - INFO - Checking registered image: uploads/front\20250309_115949_docFront.jpg
+2025-03-09 11:59:51,133 - __main__ - INFO - Found registered image at: uploads/front\20250309_115949_docFront.jpg
+2025-03-09 12:00:01,480 - __main__ - INFO - Face match found with image: uploads/front\20250309_115949_docFront.jpg
+2025-03-09 12:00:01,487 - __main__ - INFO - Token generated successfully for user 6
+2025-03-09 12:00:01,495 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 12:00:01] "POST /generate-token HTTP/1.1" 200 -
+2025-03-09 12:00:35,195 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 12:00:35] "POST /get-documents HTTP/1.1" 200 -
+2025-03-09 12:00:35,236 - __main__ - INFO - Processing token generation request
+2025-03-09 12:00:35,334 - __main__ - INFO - Saved selfie image to: uploads/selfies\20250309_120035_selfie.jpg
+2025-03-09 12:00:35,343 - __main__ - INFO - Checking registered image: uploads/front\20250309_120033_docFront.jpg
+2025-03-09 12:00:35,343 - __main__ - INFO - Found registered image at: uploads/front\20250309_120033_docFront.jpg
+2025-03-09 12:00:41,991 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 12:00:41] "POST /get-documents HTTP/1.1" 200 -
+2025-03-09 12:00:42,032 - __main__ - INFO - Processing token generation request
+2025-03-09 12:00:42,127 - __main__ - INFO - Saved selfie image to: uploads/selfies\20250309_120042_selfie.jpg
+2025-03-09 12:00:42,129 - __main__ - INFO - Checking registered image: uploads/front\20250309_120040_docFront.jpg
+2025-03-09 12:00:42,129 - __main__ - INFO - Found registered image at: uploads/front\20250309_120040_docFront.jpg
+2025-03-09 12:00:45,963 - __main__ - INFO - Face match found with image: uploads/front\20250309_120033_docFront.jpg
+2025-03-09 12:00:45,971 - __main__ - INFO - Token generated successfully for user 7
+2025-03-09 12:00:45,971 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 12:00:45] "POST /generate-token HTTP/1.1" 200 -
+2025-03-09 12:00:52,773 - __main__ - INFO - Face match found with image: uploads/front\20250309_120040_docFront.jpg
+2025-03-09 12:00:52,783 - __main__ - INFO - Token generated successfully for user 8
+2025-03-09 12:00:52,784 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 12:00:52] "POST /generate-token HTTP/1.1" 200 -
+2025-03-09 12:01:40,314 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 12:01:40] "POST /get-documents HTTP/1.1" 200 -
+2025-03-09 12:01:40,363 - __main__ - INFO - Processing token generation request
+2025-03-09 12:01:40,479 - __main__ - INFO - Saved selfie image to: uploads/selfies\20250309_120140_selfie.jpg
+2025-03-09 12:01:40,479 - __main__ - INFO - Checking registered image: uploads/front\20250309_120139_docFront.jpg
+2025-03-09 12:01:40,479 - __main__ - INFO - Found registered image at: uploads/front\20250309_120139_docFront.jpg
+2025-03-09 12:01:48,033 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 12:01:48] "POST /get-documents HTTP/1.1" 200 -
+2025-03-09 12:01:48,064 - __main__ - INFO - Processing token generation request
+2025-03-09 12:01:48,215 - __main__ - INFO - Saved selfie image to: uploads/selfies\20250309_120148_selfie.jpg
+2025-03-09 12:01:48,219 - __main__ - INFO - Checking registered image: uploads/front\20250309_120146_docFront.jpg
+2025-03-09 12:01:48,219 - __main__ - INFO - Found registered image at: uploads/front\20250309_120146_docFront.jpg
+2025-03-09 12:01:52,511 - __main__ - INFO - Face match found with image: uploads/front\20250309_120139_docFront.jpg
+2025-03-09 12:01:52,519 - __main__ - INFO - Token generated successfully for user 9
+2025-03-09 12:01:52,519 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 12:01:52] "POST /generate-token HTTP/1.1" 200 -
+2025-03-09 12:01:59,367 - __main__ - INFO - Face match found with image: uploads/front\20250309_120146_docFront.jpg
+2025-03-09 12:01:59,375 - __main__ - INFO - Token generated successfully for user 10
+2025-03-09 12:01:59,377 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 12:01:59] "POST /generate-token HTTP/1.1" 200 -
+2025-03-09 12:03:55,991 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 12:03:55] "POST /get-documents HTTP/1.1" 200 -
+2025-03-09 12:03:56,050 - __main__ - INFO - Processing token generation request
+2025-03-09 12:03:56,139 - __main__ - INFO - Saved selfie image to: uploads/selfies\20250309_120356_selfie.jpg
+2025-03-09 12:03:56,139 - __main__ - INFO - Checking registered image: uploads/front\20250309_120354_docFront.jpg
+2025-03-09 12:03:56,139 - __main__ - INFO - Found registered image at: uploads/front\20250309_120354_docFront.jpg
+2025-03-09 12:04:06,761 - __main__ - INFO - Face match found with image: uploads/front\20250309_120354_docFront.jpg
+2025-03-09 12:04:06,769 - __main__ - INFO - Token generated successfully for user 11
+2025-03-09 12:04:06,778 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 12:04:06] "POST /generate-token HTTP/1.1" 200 -
+2025-03-09 12:04:34,551 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 12:04:34] "POST /get-documents HTTP/1.1" 200 -
+2025-03-09 12:04:34,683 - __main__ - INFO - Processing token generation request
+2025-03-09 12:04:34,870 - __main__ - INFO - Saved selfie image to: uploads/selfies\20250309_120434_selfie.jpg
+2025-03-09 12:04:34,870 - __main__ - INFO - Checking registered image: uploads/front\20250309_120433_docFront.jpg
+2025-03-09 12:04:34,870 - __main__ - INFO - Found registered image at: uploads/front\20250309_120433_docFront.jpg
+2025-03-09 12:04:35,436 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 12:04:35] "POST /get-documents HTTP/1.1" 200 -
+2025-03-09 12:04:35,485 - __main__ - INFO - Processing token generation request
+2025-03-09 12:04:35,770 - __main__ - INFO - Saved selfie image to: uploads/selfies\20250309_120435_selfie.jpg
+2025-03-09 12:04:35,770 - __main__ - INFO - Checking registered image: uploads/front\20250309_120434_docFront.jpg
+2025-03-09 12:04:35,770 - __main__ - INFO - Found registered image at: uploads/front\20250309_120434_docFront.jpg
+2025-03-09 12:04:36,154 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 12:04:36] "POST /get-documents HTTP/1.1" 200 -
+2025-03-09 12:04:36,482 - __main__ - ERROR - Error in get_document: (sqlite3.IntegrityError) UNIQUE constraint failed: document.document_name
+[SQL: INSERT INTO document (document_url, document_name, document_type, user_id, extracted_text) VALUES (?, ?, ?, ?, ?)]
+[parameters: ('uploads/front\\20250309_120435_docFront.jpg', 'front_20250309_120436_docFront.jpg', 'idcard', 15, 'r b. |\nwen °\n\nSa REPUBLIQUE DE CAMEROUN\ni 2EPUBLIC OF CAMEROON\n\nFONGOH\n\nMARTIN TAYONG\n&\n\neae tat ari wt cet\n05.07.1993\nwee YTGSA et ACE YR RS?\n\nA TENGENE -FAKO\n\nM 1,85\n\nAPPLICANT\n\n')]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2025-03-09 12:04:36,698 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 12:04:36] "[35m[1mPOST /get-documents HTTP/1.1[0m" 500 -
+2025-03-09 12:04:36,739 - __main__ - INFO - Processing token generation request
+2025-03-09 12:04:36,828 - __main__ - INFO - Saved selfie image to: uploads/selfies\20250309_120436_selfie.jpg
+2025-03-09 12:04:36,837 - __main__ - INFO - Checking registered image: uploads/front\20250309_120434_docFront.jpg
+2025-03-09 12:04:36,837 - __main__ - INFO - Found registered image at: uploads/front\20250309_120434_docFront.jpg
+2025-03-09 12:04:37,130 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 12:04:37] "POST /get-documents HTTP/1.1" 200 -
+2025-03-09 12:04:37,806 - __main__ - ERROR - Error in get_document: (sqlite3.IntegrityError) UNIQUE constraint failed: document.document_name
+[SQL: INSERT INTO document (document_url, document_name, document_type, user_id, extracted_text) VALUES (?, ?, ?, ?, ?)]
+[parameters: ('uploads/front\\20250309_120436_docFront.jpg', 'front_20250309_120437_docFront.jpg', 'idcard', 16, 'r b. |\nwen °\n\nSa REPUBLIQUE DE CAMEROUN\ni 2EPUBLIC OF CAMEROON\n\nFONGOH\n\nMARTIN TAYONG\n&\n\neae tat ari wt cet\n05.07.1993\nwee YTGSA et ACE YR RS?\n\nA TENGENE -FAKO\n\nM 1,85\n\nAPPLICANT\n\n')]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2025-03-09 12:04:37,868 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 12:04:37] "[35m[1mPOST /get-documents HTTP/1.1[0m" 500 -
+2025-03-09 12:04:37,919 - __main__ - INFO - Processing token generation request
+2025-03-09 12:04:37,998 - __main__ - INFO - Saved selfie image to: uploads/selfies\20250309_120437_selfie.jpg
+2025-03-09 12:04:37,998 - __main__ - INFO - Checking registered image: uploads/front\20250309_120435_docFront.jpg
+2025-03-09 12:04:37,998 - __main__ - INFO - Found registered image at: uploads/front\20250309_120435_docFront.jpg
+2025-03-09 12:04:38,831 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 12:04:38] "POST /get-documents HTTP/1.1" 200 -
+2025-03-09 12:06:35,510 - __main__ - INFO - Starting application
+2025-03-09 12:06:35,510 - __main__ - INFO - ImageExtractor initialized successfully
+2025-03-09 12:06:35,510 - __main__ - WARNING - JWT_SECRET_KEY not found in environment variables. Using a default key is NOT recommended for production.
+2025-03-09 12:06:35,510 - __main__ - INFO - JWTManager initialized successfully
+2025-03-09 12:06:35,525 - __main__ - INFO - Database initialized successfully
+2025-03-09 12:06:35,525 - __main__ - INFO - Starting Flask server on 192.168.1.43:5000 (debug=False)
+2025-03-09 12:06:35,542 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://192.168.1.43:5000
+2025-03-09 12:06:35,542 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-03-09 12:16:28,881 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 12:16:28] "POST /get-documents HTTP/1.1" 200 -
+2025-03-09 12:16:29,011 - __main__ - INFO - Processing token generation request
+2025-03-09 12:16:29,088 - __main__ - INFO - Saved selfie image to: uploads/selfies\20250309_121629_selfie.jpg
+2025-03-09 12:16:29,096 - __main__ - INFO - Checking registered image: uploads/front\20250309_121627_docFront.jpg
+2025-03-09 12:16:29,096 - __main__ - INFO - Found registered image at: uploads/front\20250309_121627_docFront.jpg
+2025-03-09 12:16:40,760 - __main__ - INFO - Face match found with image: uploads/front\20250309_121627_docFront.jpg
+2025-03-09 12:16:40,777 - __main__ - INFO - Token generated successfully for user 17
+2025-03-09 12:16:40,777 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 12:16:40] "POST /generate-token HTTP/1.1" 200 -
+2025-03-09 12:18:31,059 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 12:18:31] "POST /get-documents HTTP/1.1" 200 -
+2025-03-09 12:18:31,184 - __main__ - INFO - Processing token generation request
+2025-03-09 12:18:31,324 - __main__ - INFO - Saved selfie image to: uploads/selfies\20250309_121831_selfie.jpg
+2025-03-09 12:18:31,324 - __main__ - INFO - Checking registered image: uploads/front\20250309_121829_docFront.jpg
+2025-03-09 12:18:31,324 - __main__ - INFO - Found registered image at: uploads/front\20250309_121829_docFront.jpg
+2025-03-09 12:18:41,953 - __main__ - INFO - Face match found with image: uploads/front\20250309_121829_docFront.jpg
+2025-03-09 12:18:41,969 - __main__ - INFO - Token generated successfully for user 18
+2025-03-09 12:18:41,971 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 12:18:41] "POST /generate-token HTTP/1.1" 200 -
+2025-03-09 12:20:01,270 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 12:20:01] "POST /get-documents HTTP/1.1" 200 -
+2025-03-09 12:20:01,340 - __main__ - INFO - Processing token generation request
+2025-03-09 12:20:01,511 - __main__ - INFO - Saved selfie image to: uploads/selfies\20250309_122001_selfie.jpg
+2025-03-09 12:20:01,511 - __main__ - INFO - Checking registered image: uploads/front\20250309_122000_docFront.jpg
+2025-03-09 12:20:01,511 - __main__ - INFO - Found registered image at: uploads/front\20250309_122000_docFront.jpg
+2025-03-09 12:20:12,839 - __main__ - INFO - Face match found with image: uploads/front\20250309_122000_docFront.jpg
+2025-03-09 12:20:12,848 - __main__ - INFO - Token generated successfully for user 19
+2025-03-09 12:20:12,851 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 12:20:12] "POST /generate-token HTTP/1.1" 200 -
+2025-03-09 12:21:24,051 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 12:21:24] "POST /get-documents HTTP/1.1" 200 -
+2025-03-09 12:21:24,108 - __main__ - INFO - Processing token generation request
+2025-03-09 12:21:24,240 - __main__ - INFO - Saved selfie image to: uploads/selfies\20250309_122124_selfie.jpg
+2025-03-09 12:21:24,248 - __main__ - INFO - Checking registered image: uploads/front\20250309_122123_docFront.jpg
+2025-03-09 12:21:24,248 - __main__ - INFO - Found registered image at: uploads/front\20250309_122123_docFront.jpg
+2025-03-09 12:21:34,576 - __main__ - INFO - Face match found with image: uploads/front\20250309_122123_docFront.jpg
+2025-03-09 12:21:34,586 - __main__ - INFO - Token generated successfully for user 20
+2025-03-09 12:21:34,586 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 12:21:34] "POST /generate-token HTTP/1.1" 200 -
+2025-03-09 12:23:08,737 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 12:23:08] "POST /get-documents HTTP/1.1" 200 -
+2025-03-09 12:23:08,792 - __main__ - INFO - Processing token generation request
+2025-03-09 12:23:08,841 - __main__ - INFO - Saved selfie image to: uploads/selfies\20250309_122308_selfie.jpg
+2025-03-09 12:23:08,841 - __main__ - INFO - Checking registered image: uploads/front\20250309_122307_docFront.jpg
+2025-03-09 12:23:08,841 - __main__ - INFO - Found registered image at: uploads/front\20250309_122307_docFront.jpg
+2025-03-09 12:23:17,318 - __main__ - INFO - Face match found with image: uploads/front\20250309_122307_docFront.jpg
+2025-03-09 12:23:17,325 - __main__ - INFO - Token generated successfully for user 21
+2025-03-09 12:23:17,334 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 12:23:17] "POST /generate-token HTTP/1.1" 200 -
+2025-03-09 12:24:09,386 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 12:24:09] "POST /get-documents HTTP/1.1" 200 -
+2025-03-09 12:24:09,493 - __main__ - INFO - Processing token generation request
+2025-03-09 12:24:09,549 - __main__ - INFO - Saved selfie image to: uploads/selfies\20250309_122409_selfie.jpg
+2025-03-09 12:24:09,551 - __main__ - INFO - Checking registered image: uploads/front\20250309_122408_docFront.jpg
+2025-03-09 12:24:09,551 - __main__ - INFO - Found registered image at: uploads/front\20250309_122408_docFront.jpg
+2025-03-09 12:24:18,100 - __main__ - INFO - Face match found with image: uploads/front\20250309_122408_docFront.jpg
+2025-03-09 12:24:18,116 - __main__ - INFO - Token generated successfully for user 22
+2025-03-09 12:24:18,116 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 12:24:18] "POST /generate-token HTTP/1.1" 200 -
+2025-03-09 12:32:04,984 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 12:32:04] "POST /get-documents HTTP/1.1" 200 -
+2025-03-09 12:32:05,058 - __main__ - INFO - Processing token generation request
+2025-03-09 12:32:05,166 - __main__ - INFO - Saved selfie image to: uploads/selfies\20250309_123205_selfie.jpg
+2025-03-09 12:32:05,166 - __main__ - INFO - Checking registered image: uploads/front\20250309_123204_docFront.jpg
+2025-03-09 12:32:05,166 - __main__ - INFO - Found registered image at: uploads/front\20250309_123204_docFront.jpg
+2025-03-09 12:32:15,945 - __main__ - INFO - Face match found with image: uploads/front\20250309_123204_docFront.jpg
+2025-03-09 12:32:15,953 - __main__ - INFO - Token generated successfully for user 23
+2025-03-09 12:32:15,953 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 12:32:15] "POST /generate-token HTTP/1.1" 200 -
+2025-03-09 12:32:32,269 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 12:32:32] "POST /get-documents HTTP/1.1" 200 -
+2025-03-09 12:32:32,363 - __main__ - INFO - Processing token generation request
+2025-03-09 12:32:32,466 - __main__ - INFO - Saved selfie image to: uploads/selfies\20250309_123232_selfie.jpg
+2025-03-09 12:32:32,466 - __main__ - INFO - Checking registered image: uploads/front\20250309_123231_docFront.jpg
+2025-03-09 12:32:32,466 - __main__ - INFO - Found registered image at: uploads/front\20250309_123231_docFront.jpg
+2025-03-09 12:32:44,360 - __main__ - INFO - Face match found with image: uploads/front\20250309_123231_docFront.jpg
+2025-03-09 12:32:44,368 - __main__ - INFO - Token generated successfully for user 24
+2025-03-09 12:32:44,376 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 12:32:44] "POST /generate-token HTTP/1.1" 200 -
+2025-03-09 12:33:34,984 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 12:33:34] "POST /get-documents HTTP/1.1" 200 -
+2025-03-09 12:33:35,051 - __main__ - INFO - Processing token generation request
+2025-03-09 12:33:35,163 - __main__ - INFO - Saved selfie image to: uploads/selfies\20250309_123335_selfie.jpg
+2025-03-09 12:33:35,163 - __main__ - INFO - Checking registered image: uploads/front\20250309_123334_docFront.jpg
+2025-03-09 12:33:35,163 - __main__ - INFO - Found registered image at: uploads/front\20250309_123334_docFront.jpg
+2025-03-09 12:33:46,621 - __main__ - INFO - Face match found with image: uploads/front\20250309_123334_docFront.jpg
+2025-03-09 12:33:46,629 - __main__ - INFO - Token generated successfully for user 25
+2025-03-09 12:33:46,637 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 12:33:46] "POST /generate-token HTTP/1.1" 200 -
+2025-03-09 12:35:45,009 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 12:35:45] "POST /get-documents HTTP/1.1" 200 -
+2025-03-09 12:35:45,082 - __main__ - INFO - Processing token generation request
+2025-03-09 12:35:45,172 - __main__ - INFO - Saved selfie image to: uploads/selfies\20250309_123545_selfie.jpg
+2025-03-09 12:35:45,172 - __main__ - INFO - Checking registered image: uploads/front\20250309_123543_docFront.jpg
+2025-03-09 12:35:45,172 - __main__ - INFO - Found registered image at: uploads/front\20250309_123543_docFront.jpg
+2025-03-09 12:35:56,587 - __main__ - INFO - Face match found with image: uploads/front\20250309_123543_docFront.jpg
+2025-03-09 12:35:56,603 - __main__ - INFO - Token generated successfully for user 26
+2025-03-09 12:35:56,603 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 12:35:56] "POST /generate-token HTTP/1.1" 200 -
+2025-03-09 12:37:50,018 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 12:37:50] "POST /get-documents HTTP/1.1" 200 -
+2025-03-09 12:37:50,123 - __main__ - INFO - Processing token generation request
+2025-03-09 12:37:50,222 - __main__ - INFO - Saved selfie image to: uploads/selfies\20250309_123750_selfie.jpg
+2025-03-09 12:37:50,222 - __main__ - INFO - Checking registered image: uploads/front\20250309_123748_docFront.jpg
+2025-03-09 12:37:50,228 - __main__ - INFO - Found registered image at: uploads/front\20250309_123748_docFront.jpg
+2025-03-09 12:38:03,150 - __main__ - INFO - Face match found with image: uploads/front\20250309_123748_docFront.jpg
+2025-03-09 12:38:03,167 - __main__ - INFO - Token generated successfully for user 27
+2025-03-09 12:38:03,167 - werkzeug - INFO - 192.168.1.237 - - [09/Mar/2025 12:38:03] "POST /generate-token HTTP/1.1" 200 -
